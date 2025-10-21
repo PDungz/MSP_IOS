@@ -38,7 +38,7 @@ struct ForgotPasswordView: View {
 
                 // Email Input
                 VStack(spacing: .spacing16) {
-                    TextFiedView(
+                    TextFieldView(
                         text: $email,
                         placeholder: "Email",
                         iconName: "envelope.fill",

@@ -11,7 +11,17 @@ struct LoginView: View {
     let coordinator: AuthCoordinator
     @ObservedObject var appState: AppState
     @State private var isPasswordVisible = false
-    @StateObject private var authViewModel = AuthViewModel()
+
+    // ✅ Inject AuthService from AppState
+    @StateObject private var authViewModel: AuthViewModel
+
+    init(coordinator: AuthCoordinator, appState: AppState) {
+        self.coordinator = coordinator
+        self.appState = appState
+
+        // ✅ Initialize ViewModel with AuthService from AppState
+        _authViewModel = StateObject(wrappedValue: AuthViewModel(authService: appState.auth))
+    }
 
     var body: some View {
         ZStack {
@@ -25,12 +35,12 @@ struct LoginView: View {
                         .frame(height: .iconSize56)
 
                     VStack(alignment: .leading, spacing: .spacing4) {
-                        Text("Your forever")
+                        Text(NSLocalizedString("login_your_forever", comment: "Header text"))
                             .font(.title2)
                             .fontWeight(.bold)
                             .foregroundStyle(.black)
 
-                        Text("people platform")
+                        Text(NSLocalizedString("login_people_platform", comment: "Header text"))
                             .font(.title2)
                             .fontWeight(.bold)
                             .foregroundStyle(.black)
@@ -48,18 +58,18 @@ struct LoginView: View {
 
                 VStack {
                     VStack {
-                        TextFiedView(
+                        TextFieldView(
                             text: $authViewModel.username,
-                            placeholder: "Username",
+                            placeholder: NSLocalizedString("login_username", comment: "Username placeholder"),
                             iconName: "person.fill",
                             keyboardType: .emailAddress
                         )
                         .padding(.bottom, .padding12)
                         .disabled(authViewModel.isLoading)
 
-                        TextFiedView(
+                        TextFieldView(
                             text: $authViewModel.password,
-                            placeholder: "Password",
+                            placeholder: NSLocalizedString("login_password", comment: "Password placeholder"),
                             iconName: "lock.fill",
                             iconNameRight: isPasswordVisible ? "eye.slash.fill" : "eye.fill",
                             showClearButton: false,
@@ -71,19 +81,44 @@ struct LoginView: View {
                         .padding(.bottom, .padding12)
                         .disabled(authViewModel.isLoading)
 
+                        // ✅ Error Message
                         if let errorMessage = authViewModel.errorMessage {
-                            Text(errorMessage)
-                                .font(.caption)
-                                .foregroundColor(.red)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .padding(.bottom, .padding8)
+                            HStack {
+                                Image(systemName: "exclamationmark.triangle.fill")
+                                    .foregroundColor(.red)
+                                Text(errorMessage)
+                                    .font(.caption)
+                                    .foregroundColor(.red)
+                            }
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.vertical, .padding8)
+                            .padding(.horizontal, .padding12)
+                            .background(Color.red.opacity(0.1))
+                            .cornerRadius(8)
+                            .padding(.bottom, .padding8)
+                        }
+
+                        // ✅ Success Message
+                        if let successMessage = authViewModel.successMessage {
+                            HStack {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .foregroundColor(.green)
+                                Text(successMessage)
+                                    .font(.caption)
+                                    .foregroundColor(.green)
+                            }
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.vertical, .padding8)
+                            .padding(.horizontal, .padding12)
+                            .background(Color.green.opacity(0.1))
+                            .cornerRadius(8)
+                            .padding(.bottom, .padding8)
                         }
 
                         Button(action: {
-                            print("Navigate to forgot password")
                             coordinator.showForgotPassword()
                         }) {
-                            Text("Forgot Password?")
+                            Text(NSLocalizedString("login_forgot_password", comment: "Forgot password button"))
                                 .font(.subheadline)
                                 .foregroundColor(AppColors.textSecondary)
                                 .underline()
@@ -91,14 +126,21 @@ struct LoginView: View {
                         }
                         .padding(.bottom, .padding8)
 
+                        // ✅ Login Button
                         ButtonView(
-                            title: authViewModel.isLoading ? "Loading..." : "Login",
+                            title: authViewModel.isLoading ?
+                                NSLocalizedString("login_loading_message", comment: "Loading message") :
+                                NSLocalizedString("login", comment: "Login button"),
                             shadowColor: AppColors.primaryGreen.opacity(.opacityMedium),
                             action: {
                                 Task {
+                                    // ✅ Call login - AppState will auto sync from AuthService
                                     let success = await authViewModel.login()
+
                                     if success {
-                                        appState.login()
+                                        // ✅ KHÔNG CẦN gọi appState.login() nữa
+                                        // AuthService.isAuthenticated changed → AppState syncs automatically
+                                        AppLogger.s("Login successful, waiting for auto navigation...")
                                     }
                                 }
                             }
@@ -107,13 +149,28 @@ struct LoginView: View {
                         .opacity(authViewModel.isLoading ? 0.6 : 1.0)
                         .padding(.bottom, .padding8)
 
-                        Text("Or")
-                            .font(.headline)
+                        HStack {
+                            Text(
+                                NSLocalizedString(
+                                    "login_need_to_create_an_account",
+                                    comment: ""
+                                )
+                            )
+                            .font(.subheadline)
                             .fontWeight(.bold)
-                            .padding(.bottom, .padding8)
+
+                            Button(action: {
+                                coordinator.showForgotPassword()
+                            }) {
+                                Text(NSLocalizedString("login_sign_up", comment: ""))
+                                    .font(.subheadline)
+                                    .foregroundColor(AppColors.textSecondary)
+                                    .underline()
+                            }
+                        }
 
                         ButtonView(
-                            title: "Sign In Using Apple",
+                            title: NSLocalizedString("login_sign_in_using_apple", comment: "Sign in with Apple"),
                             icon: .system("apple.logo"),
                             style: .outline,
                             action: {}
@@ -122,7 +179,7 @@ struct LoginView: View {
                         .disabled(authViewModel.isLoading)
 
                         ButtonView(
-                            title: "Sign In Using Google",
+                            title: NSLocalizedString("login_sign_in_using_google", comment: "Sign in with Google"),
                             icon: .asset("google"),
                             style: .outline,
                             action: {}
@@ -148,7 +205,7 @@ struct LoginView: View {
             }
             .ignoresSafeArea(edges: .bottom)
 
-            // Loading overlay
+            // ✅ Loading Overlay
             if authViewModel.isLoading {
                 Color.black.opacity(0.3)
                     .edgesIgnoringSafeArea(.all)
@@ -158,11 +215,15 @@ struct LoginView: View {
                         .progressViewStyle(CircularProgressViewStyle(tint: .white))
                         .scaleEffect(1.5)
 
-                    Text("Logging in...")
+                    Text(NSLocalizedString("login_loading_message", comment: "Loading message"))
                         .font(.headline)
                         .foregroundColor(.white)
                 }
             }
+        }
+        .onAppear {
+            // ✅ Check auth on appear (will auto navigate if already logged in)
+            authViewModel.checkAuthStatus()
         }
     }
 }

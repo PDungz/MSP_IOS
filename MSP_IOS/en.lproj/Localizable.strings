@@ -1,0 +1,34 @@
+/* 
+  Localizable.strings
+  MSP_IOS
+
+  Created by Phùng Văn Dũng on 19/10/25.
+  
+*/
+
+
+// MARK: Auth
+
+/// Login
+"login" = "Login";
+"login_username" = "Username";
+"login_password" = "Password";
+"login_sign_up" = "Sign up";
+"login_need_to_create_an_account" = "Need to create an account?";
+"login_forgot_password" = "Forgot Password?";
+"login_loading_message" ="Loading...";
+"login_sign_in_using_apple" = "Sign In Using Apple";
+"login_sign_in_using_google" = "Sign In Using Google";
+"login_your_forever" = "Your forever";
+"login_people_platform" = "people platform";
+"login_invalid_credentials" = "Invalid username or password";
+"login_username_required" = "Username is required";
+"login_password_required" = "Password is required";
+"login_unknown_error" = "Unknown error occurred";
+
+
+// MARK: Home
+
+// Home
+"home_search1" = "Search for locations";
+"home_search2" = "Search for dishes";

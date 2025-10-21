@@ -10,11 +10,13 @@ import Foundation
 enum AuthRoute: Route {
     case login
     case forgotPassword
+    case signUp
 
     var id: String {
         switch self {
         case .login: return "login"
         case .forgotPassword: return "forgotPassword"
+        case .signUp: return "signUp"
         }
     }
 }

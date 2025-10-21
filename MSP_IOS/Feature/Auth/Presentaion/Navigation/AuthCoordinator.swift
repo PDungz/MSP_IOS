@@ -23,6 +23,8 @@ final class AuthCoordinator: BaseCoordinator<AuthRoute> {
 
         case .forgotPassword:
             return AnyView(ForgotPasswordView(coordinator: self))
+        case .signUp:
+            return AnyView(SignUpView(coordinator: self))
         }
     }
 

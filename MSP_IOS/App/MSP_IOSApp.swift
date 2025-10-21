@@ -10,9 +10,7 @@ import SwiftUI
 @main
 struct MSP_IOSApp: App {
 
-    //MARK: - State
-
-    // Global app state
+    // MARK: - State
     @StateObject private var appState = AppState()
 
     var body: some Scene {
@@ -20,13 +18,21 @@ struct MSP_IOSApp: App {
             RootView()
                 .environmentObject(appState)
                 .onAppear {
-
+                    setupApp()
                 }
         }
     }
 
-
     private func setupApp() {
-        print("MSP IOS App Setup")
+        // ✅ Setup logger
+        #if DEBUG
+        AppLogger.isEnabled = true
+        AppLogger.minLevel = .info
+        #else
+        AppLogger.isEnabled = false
+        AppLogger.minLevel = .error
+        #endif
+
+        AppLogger.i("🚀 MSP iOS App launched")
     }
 }
