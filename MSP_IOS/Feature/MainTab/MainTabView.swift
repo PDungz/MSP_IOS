@@ -13,25 +13,31 @@ struct MainTabView: View {
     @State private var selectedTab: TabItem = .home
 
     var body: some View {
-        ZStack(alignment: .bottom) {
-            // Content
-            Group {
-                switch selectedTab {
-                case .home:
-                    HomeView(router: router, appState: appState)
-                case .payment:
-                    PaymentView()
-                case .message:
-                    MessageView()
+        NavigationView {
+            ZStack(alignment: .bottom) {
+                // Content
+                Group {
+                    switch selectedTab {
+                    case .home:
+                        HomeView(router: router, appState: appState)
+                    case .payment:
+                        PaymentView()
+                    case .activity:
+                        ActionView()
+                    case .message:
+                        MessageView()
+                    }
                 }
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-            // Custom Tab Bar
-            TabBarView(selectedTab: $selectedTab)
+                // Custom Tab Bar
+                TabBarView(selectedTab: $selectedTab)
+            }
+            .navigationBarHidden(true)
+            .ignoresSafeArea(.keyboard)
+            .edgesIgnoringSafeArea(.bottom)
         }
-        .ignoresSafeArea(.keyboard)
-        .edgesIgnoringSafeArea(.bottom)
+        .navigationViewStyle(StackNavigationViewStyle())
     }
 }
 

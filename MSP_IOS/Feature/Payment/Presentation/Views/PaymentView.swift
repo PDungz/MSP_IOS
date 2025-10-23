@@ -7,12 +7,12 @@
 
 import SwiftUI
 
-struct CartView: View {
+struct PaymentView: View {
     var body: some View {
-        Text("Cart View")
+        Text("Payment View")
     }
 }
 
 #Preview {
-    CartView()
+    PaymentView()
 }

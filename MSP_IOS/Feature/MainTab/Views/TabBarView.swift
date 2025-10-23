@@ -36,7 +36,6 @@ struct TabBarView: View {
                     y: -2
                 )
         )
-        .edgesIgnoringSafeArea(.all)
     }
 }
 
@@ -74,4 +73,5 @@ struct TabBarButton: View {
         TabBarView(selectedTab: .constant(.home))
     }
     .background(Color.gray.opacity(0.1))
+    .edgesIgnoringSafeArea(.bottom)
 }

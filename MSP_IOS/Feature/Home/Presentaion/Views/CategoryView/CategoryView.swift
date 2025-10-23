@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct CategoryView: View {
-    let categories = Array(1...10)
+    let categories = Category.allCases
 
     let rows = [
         GridItem(.flexible(), spacing: 12),
@@ -27,9 +27,12 @@ struct CategoryView: View {
             let itemWidth = availableWidth / numberOfColumns
 
             LazyHGrid(rows: rows, spacing: gridSpacing) {
-                ForEach(categories, id: \.self) { index in
-                    CategoryItemView(index: index)
-                        .frame(width: itemWidth)
+                ForEach(categories, id: \.self) { category in
+                    NavigationLink(destination: category.destinationView) {
+                        CategoryItemView(category: category)
+                            .frame(width: itemWidth)
+                    }
+                    .buttonStyle(PlainButtonStyle())
                 }
             }
             .padding(.horizontal, horizontalPadding)
@@ -40,22 +43,24 @@ struct CategoryView: View {
 }
 
 struct CategoryItemView: View {
-    let index: Int
+    let category: Category
 
     var body: some View {
         VStack(spacing: .spacing8) {
-            Image(systemName: "square.grid.2x2")
+            Image(systemName: category.icon)
                 .resizable()
                 .scaledToFit()
                 .frame(height: .iconSize28)
-                .foregroundColor(.blue)
+                .foregroundColor(category.color)
 
-            Text("Category \(index)")
+            Text(category.title)
                 .font(.caption)
                 .foregroundColor(.primary)
+                .lineLimit(2)
+                .multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity)
-        .padding(.horizontal, .padding12)
+        .padding(.horizontal, .padding4)
         .padding(.vertical, .padding12)
         .background(AppColors.primaryGreenLight.opacity(.opacity1))
         .cornerRadius(.radius12)
@@ -64,5 +69,7 @@ struct CategoryItemView: View {
 }
 
 #Preview {
-    CategoryView()
+    NavigationView {
+        CategoryView()
+    }
 }

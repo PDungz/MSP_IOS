@@ -32,3 +32,10 @@
 // Home
 "home_search1" = "Search for locations";
 "home_search2" = "Search for dishes";
+
+// Home -> Category
+"home_category_home" = "Home";
+"home_category_payment" = "Payment";
+"home_category_activity" = "Activity";
+"home_category_message" = "Messages";
+

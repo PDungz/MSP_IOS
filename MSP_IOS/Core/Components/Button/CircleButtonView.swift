@@ -4,44 +4,58 @@
 //
 //  Created by Phùng Văn Dũng on 21/10/25.
 //
-
 import SwiftUI
 
 // MARK: - CircleButtonView
 struct CircleButtonView<Content: View>: View {
     // MARK: - Properties
-    private let style: ButtonStyleType
-    private let size: CircleButtonSizeType
+    private let backgroundColor: Color
+    private let foregroundColor: Color
+    private let borderColor: Color
+    private let borderWidth: CGFloat
+    private let size: CGFloat
     private let isEnabled: Bool
     private let isLoading: Bool
     private let withShadow: Bool
-    private let shadowColor: Color?
-    private let shadowRadius: CGFloat?
-    private let shadowOffset: CGFloat?
+    private let shadowColor: Color
+    private let shadowRadius: CGFloat
+    private let shadowX: CGFloat
+    private let shadowY: CGFloat
+    private let disabledOpacity: Double
     private let content: () -> Content
     private let action: () -> Void
 
     // MARK: - Initializer
     init(
-        style: ButtonStyleType = .primary,
-        size: CircleButtonSizeType = .medium,
+        backgroundColor: Color = AppColors.primaryGreen,
+        foregroundColor: Color = .white,
+        borderColor: Color = .clear,
+        borderWidth: CGFloat = 0,
+        size: CGFloat = 48,
         isEnabled: Bool = true,
         isLoading: Bool = false,
         withShadow: Bool = true,
-        shadowColor: Color? = nil,
-        shadowRadius: CGFloat? = nil,
-        shadowOffset: CGFloat? = nil,
+        shadowColor: Color = .black.opacity(0.2),
+        shadowRadius: CGFloat = 8,
+        shadowX: CGFloat = 0,
+        shadowY: CGFloat = 3,
+        disabledOpacity: Double = 0.5,
         action: @escaping () -> Void,
         @ViewBuilder content: @escaping () -> Content
     ) {
-        self.style = style
+        self.backgroundColor = backgroundColor
+        self.foregroundColor = foregroundColor
+        self.borderColor = borderColor
+        self.borderWidth = borderWidth
         self.size = size
         self.isEnabled = isEnabled
         self.isLoading = isLoading
         self.withShadow = withShadow
         self.shadowColor = shadowColor
         self.shadowRadius = shadowRadius
-        self.shadowOffset = shadowOffset
+        self.shadowX = shadowX
+        self.shadowY = shadowY
+        self.disabledOpacity = disabledOpacity
         self.content = content
         self.action = action
     }
@@ -56,130 +70,121 @@ struct CircleButtonView<Content: View>: View {
             ZStack {
                 if isLoading {
                     ProgressView()
-                        .progressViewStyle(CircularProgressViewStyle(tint: style.foregroundColor(isEnabled: isEnabled)))
+                        .progressViewStyle(CircularProgressViewStyle(tint: foregroundColor))
                         .scaleEffect(0.8)
                 } else {
                     content()
+                        .foregroundStyle(foregroundColor)
                 }
             }
-            .foregroundStyle(style.foregroundColor(isEnabled: isEnabled))
-            .frame(width: size.dimension, height: size.dimension)
-            .background(style.backgroundColor(isEnabled: isEnabled))
+            .frame(width: size, height: size)
+            .background(backgroundColor)
             .clipShape(Circle())
             .overlay(
                 Circle()
-                    .stroke(
-                        style.borderColor(isEnabled: isEnabled),
-                        lineWidth: (style == .outline || style == .outlineDashed) ? .borderWidth2 : 0
-                    )
+                    .stroke(borderColor, lineWidth: borderWidth)
             )
             .shadow(
-                color: (withShadow && isEnabled) ? (shadowColor ?? .black.opacity(.opacityShadow)) : .clear,
-                radius: shadowRadius ?? 8,
-                x: 0,
-                y: shadowOffset ?? 3
+                color: (withShadow && isEnabled) ? shadowColor : .clear,
+                radius: shadowRadius,
+                x: shadowX,
+                y: shadowY
             )
         }
         .disabled(!isEnabled || isLoading)
-        .opacity(isEnabled ? 1.0 : .opacityDisabled)
-        .animation(.easeInOut(duration: .durationFast), value: isLoading)
-    }
-}
-
-// MARK: - CircleButtonSizeType
-enum CircleButtonSizeType {
-    case small
-    case medium
-    case large
-    case extraLarge
-
-    var dimension: CGFloat {
-        switch self {
-        case .small: return 32
-        case .medium: return 40
-        case .large: return 48
-        case .extraLarge: return 56
-        }
-    }
-
-    var iconSize: CGFloat {
-        switch self {
-        case .small: return .iconSize16
-        case .medium: return .iconSize20
-        case .large: return .iconSize24
-        case .extraLarge: return .iconSize28
-        }
-    }
-
-    var fontSize: Font {
-        switch self {
-        case .small: return .caption
-        case .medium: return .body
-        case .large: return .title3
-        case .extraLarge: return .title2
-        }
+        .opacity(isEnabled ? 1.0 : disabledOpacity)
+        .animation(.easeInOut(duration: 0.2), value: isLoading)
     }
 }
 
 // MARK: - Convenience Extensions
+
 extension CircleButtonView {
-    /// Circle button với icon
+    /// Circle button với IconType
     init(
         icon: IconType,
-        style: ButtonStyleType = .primary,
-        size: CircleButtonSizeType = .medium,
+        iconSize: CGFloat = 20,
+        iconWeight: Font.Weight = .medium,
+        backgroundColor: Color = AppColors.primaryGreen,
+        foregroundColor: Color = .white,
+        borderColor: Color = .clear,
+        borderWidth: CGFloat = 0,
+        size: CGFloat = 48,
         isEnabled: Bool = true,
         isLoading: Bool = false,
         withShadow: Bool = true,
-        shadowColor: Color? = nil,
-        shadowRadius: CGFloat? = nil,
-        shadowOffset: CGFloat? = nil,
+        shadowColor: Color = .black.opacity(0.2),
+        shadowRadius: CGFloat = 8,
+        shadowX: CGFloat = 0,
+        shadowY: CGFloat = 3,
+        disabledOpacity: Double = 0.5,
         action: @escaping () -> Void
     ) where Content == AnyView {
         self.init(
-            style: style,
+            backgroundColor: backgroundColor,
+            foregroundColor: foregroundColor,
+            borderColor: borderColor,
+            borderWidth: borderWidth,
             size: size,
             isEnabled: isEnabled,
             isLoading: isLoading,
             withShadow: withShadow,
             shadowColor: shadowColor,
             shadowRadius: shadowRadius,
-            shadowOffset: shadowOffset,
+            shadowX: shadowX,
+            shadowY: shadowY,
+            disabledOpacity: disabledOpacity,
             action: action
         ) {
             AnyView(
-                CircleButtonView.iconView(icon, size: size, style: style, isEnabled: isEnabled)
+                CircleButtonView.iconView(
+                    icon,
+                    size: iconSize,
+                    weight: iconWeight
+                )
             )
         }
     }
 
-    /// Circle button với text đơn giản
+    /// Circle button với text
     init(
         text: String,
-        style: ButtonStyleType = .primary,
-        size: CircleButtonSizeType = .medium,
+        font: Font = .body,
+        fontWeight: Font.Weight = .bold,
+        backgroundColor: Color = AppColors.primaryGreen,
+        foregroundColor: Color = .white,
+        borderColor: Color = .clear,
+        borderWidth: CGFloat = 0,
+        size: CGFloat = 48,
         isEnabled: Bool = true,
         isLoading: Bool = false,
         withShadow: Bool = true,
-        shadowColor: Color? = nil,
-        shadowRadius: CGFloat? = nil,
-        shadowOffset: CGFloat? = nil,
+        shadowColor: Color = .black.opacity(0.2),
+        shadowRadius: CGFloat = 8,
+        shadowX: CGFloat = 0,
+        shadowY: CGFloat = 3,
+        disabledOpacity: Double = 0.5,
         action: @escaping () -> Void
     ) where Content == Text {
         self.init(
-            style: style,
+            backgroundColor: backgroundColor,
+            foregroundColor: foregroundColor,
+            borderColor: borderColor,
+            borderWidth: borderWidth,
             size: size,
             isEnabled: isEnabled,
             isLoading: isLoading,
             withShadow: withShadow,
             shadowColor: shadowColor,
             shadowRadius: shadowRadius,
-            shadowOffset: shadowOffset,
+            shadowX: shadowX,
+            shadowY: shadowY,
+            disabledOpacity: disabledOpacity,
             action: action
         ) {
             Text(text)
-                .font(size.fontSize)
-                .fontWeight(.bold)
+                .font(font)
+                .fontWeight(fontWeight)
         }
     }
 
@@ -187,41 +192,39 @@ extension CircleButtonView {
     @ViewBuilder
     private static func iconView(
         _ iconType: IconType,
-        size: CircleButtonSizeType,
-        style: ButtonStyleType,
-        isEnabled: Bool
+        size: CGFloat,
+        weight: Font.Weight
     ) -> some View {
         switch iconType {
         case .system(let name):
             Image(systemName: name)
-                .font(.system(size: size.iconSize))
-                .fontWeight(.medium)
+                .font(.system(size: size, weight: weight))
 
         case .asset(let name):
             Image(name)
                 .resizable()
                 .scaledToFit()
-                .frame(width: size.iconSize, height: size.iconSize)
+                .frame(width: size, height: size)
 
         case .url(let urlString):
             AsyncImage(url: URL(string: urlString)) { phase in
                 switch phase {
                 case .empty:
                     ProgressView()
-                        .frame(width: size.iconSize, height: size.iconSize)
+                        .frame(width: size, height: size)
 
                 case .success(let image):
                     image
                         .resizable()
                         .scaledToFit()
-                        .frame(width: size.iconSize, height: size.iconSize)
+                        .frame(width: size, height: size)
                         .clipShape(Circle())
 
                 case .failure:
                     Image(systemName: "exclamationmark.triangle")
                         .resizable()
                         .scaledToFit()
-                        .frame(width: size.iconSize, height: size.iconSize)
+                        .frame(width: size, height: size)
                         .foregroundStyle(.red)
 
                 @unknown default:
@@ -233,245 +236,51 @@ extension CircleButtonView {
             image
                 .resizable()
                 .scaledToFit()
-                .frame(width: size.iconSize, height: size.iconSize)
+                .frame(width: size, height: size)
         }
     }
 }
 
 // MARK: - Preview
+
 #Preview {
     ScrollView {
-        VStack(spacing: .spacing24) {
-            Text("Circle Button Sizes")
+        VStack(spacing: 24) {
+            Text("Basic Sizes")
                 .font(.headline)
 
-            HStack(spacing: .spacing16) {
-                CircleButtonView(icon: .system("plus"), size: .small) {
+            HStack(spacing: 16) {
+                CircleButtonView(
+                    icon: .system("plus"),
+                    size: 32
+                ) {
                     print("Small")
                 }
 
-                CircleButtonView(icon: .system("heart.fill"), size: .medium) {
+                CircleButtonView(
+                    icon: .system("heart.fill"),
+                    size: 48
+                ) {
                     print("Medium")
                 }
 
-                CircleButtonView(icon: .system("star.fill"), size: .large) {
+                CircleButtonView(
+                    icon: .system("star.fill"),
+                    size: 56
+                ) {
                     print("Large")
                 }
 
-                CircleButtonView(icon: .system("crown.fill"), size: .extraLarge) {
+                CircleButtonView(
+                    icon: .system("crown.fill"),
+                    size: 64
+                ) {
                     print("Extra Large")
                 }
             }
 
             Divider()
-
-            Text("Circle Button Styles")
-                .font(.headline)
-
-            HStack(spacing: .spacing16) {
-                CircleButtonView(icon: .system("plus"), style: .primary) {
-                    print("Primary")
-                }
-
-                CircleButtonView(icon: .system("heart"), style: .secondary) {
-                    print("Secondary")
-                }
-
-                CircleButtonView(icon: .system("trash"), style: .danger) {
-                    print("Danger")
-                }
-
-                CircleButtonView(icon: .system("gear"), style: .outline) {
-                    print("Outline")
-                }
-            }
-
-            Divider()
-
-            Text("Circle Button with Text")
-                .font(.headline)
-
-            HStack(spacing: .spacing16) {
-                CircleButtonView(text: "A", style: .primary, size: .small) {
-                    print("A")
-                }
-
-                CircleButtonView(text: "5", style: .secondary, size: .medium) {
-                    print("5")
-                }
-
-                CircleButtonView(text: "99", style: .outline, size: .large) {
-                    print("99")
-                }
-            }
-
-            Divider()
-
-            Text("Circle Button with Custom Content")
-                .font(.headline)
-
-            HStack(spacing: .spacing16) {
-                CircleButtonView(style: .primary, size: .small) {
-                    print("Custom 1")
-                } content: {
-                    VStack(spacing: 2) {
-                        Image(systemName: "clock")
-                            .font(.system(size: 10))
-                        Text("5")
-                            .font(.system(size: 8))
-                    }
-                }
-
-                CircleButtonView(style: .secondary, size: .medium) {
-                    print("Custom 2")
-                } content: {
-                    Image(systemName: "bell.badge.fill")
-                        .font(.system(size: 18))
-                }
-
-                CircleButtonView(style: .outline, size: .large) {
-                    print("Custom 3")
-                } content: {
-                    Text("!")
-                        .font(.title2)
-                        .fontWeight(.bold)
-                }
-            }
-
-            Divider()
-
-            Text("Circle Button States")
-                .font(.headline)
-
-            HStack(spacing: .spacing16) {
-                CircleButtonView(icon: .system("checkmark"), style: .primary) {
-                    print("Enabled")
-                }
-
-                CircleButtonView(icon: .system("xmark"), style: .danger, isLoading: true) {
-                    print("Loading")
-                }
-
-                CircleButtonView(icon: .system("lock"), style: .secondary, isEnabled: false) {
-                    print("Disabled")
-                }
-            }
-
-            Divider()
-
-            Text("Circle Button with Custom Shadow")
-                .font(.headline)
-
-            HStack(spacing: .spacing16) {
-                CircleButtonView(
-                    icon: .system("heart.fill"),
-                    style: .primary,
-                    shadowColor: .red.opacity(.opacityMedium),
-                    shadowRadius: 12,
-                    shadowOffset: 5
-                ) {
-                    print("Custom shadow")
-                }
-
-                CircleButtonView(
-                    icon: .system("star.fill"),
-                    style: .secondary,
-                    withShadow: false
-                ) {
-                    print("No shadow")
-                }
-            }
-
-            Divider()
-
-            Text("Floating Action Button (FAB)")
-                .font(.headline)
-
-            ZStack(alignment: .bottomTrailing) {
-                Rectangle()
-                    .fill(Color.gray.opacity(0.1))
-                    .frame(height: 200)
-                    .overlay(
-                        Text("Content Area")
-                            .foregroundColor(.gray)
-                    )
-
-                CircleButtonView(
-                    icon: .system("plus"),
-                    style: .primary,
-                    size: .extraLarge,
-                    shadowRadius: 12,
-                    shadowOffset: 6
-                ) {
-                    print("FAB")
-                }
-                .padding(.padding24)
-            }
-            .cornerRadius(.radius16)
-
-            Divider()
-
-            Text("Icon Button Group")
-                .font(.headline)
-
-            HStack(spacing: .spacing12) {
-                CircleButtonView(icon: .system("house.fill"), style: .primary, size: .medium) {
-                    print("Home")
-                }
-
-                CircleButtonView(icon: .system("magnifyingglass"), style: .secondary, size: .medium) {
-                    print("Search")
-                }
-
-                CircleButtonView(icon: .system("bell"), style: .secondary, size: .medium) {
-                    print("Notifications")
-                }
-
-                CircleButtonView(icon: .system("person"), style: .secondary, size: .medium) {
-                    print("Profile")
-                }
-            }
-
-            Divider()
-
-            Text("Social Media Buttons")
-                .font(.headline)
-
-            HStack(spacing: .spacing16) {
-                CircleButtonView(
-                    icon: .system("heart.fill"),
-                    style: .danger,
-                    size: .large
-                ) {
-                    print("Like")
-                }
-
-                CircleButtonView(
-                    icon: .system("message.fill"),
-                    style: .primary,
-                    size: .large
-                ) {
-                    print("Comment")
-                }
-
-                CircleButtonView(
-                    icon: .system("paperplane.fill"),
-                    style: .secondary,
-                    size: .large
-                ) {
-                    print("Share")
-                }
-
-                CircleButtonView(
-                    icon: .system("bookmark.fill"),
-                    style: .outline,
-                    size: .large
-                ) {
-                    print("Bookmark")
-                }
-            }
         }
-        .padding(.horizontal, .padding24)
-        .padding(.vertical, .spacing24)
     }
 }
+

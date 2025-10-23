@@ -30,7 +30,7 @@ class AuthService: BaseService {
         let request = LoginAPIRequest(credentials: credentials)
 
         // ✅ Use BaseService helper
-        let (authData, message) = try await executeRequestWithFullResponse(
+        let (authData, _) = try await executeRequestWithFullResponse(
             endpoint: request,
             responseType: AuthResponse.self
         )

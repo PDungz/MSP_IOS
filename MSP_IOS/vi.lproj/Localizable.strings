@@ -32,3 +32,9 @@
 // Home
 "home_search1" = "Tìm địa điểm";
 "home_search2" = "Tìm món ăn";
+
+// Home -> Category
+"home_category_home" = "Trang chủ";
+"home_category_payment" = "Thanh toán";
+"home_category_activity" = "Hoạt động";
+"home_category_message" = "Tin nhắn";

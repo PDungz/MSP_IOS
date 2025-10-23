@@ -25,7 +25,7 @@ enum ButtonStyleType {
     case danger
 
     func backgroundColor(isEnabled: Bool) -> Color {
-        guard isEnabled else { return Color.gray.opacity(.opacityOverlay) }
+        guard isEnabled else { return Color.gray.opacity(.opacity3) }
 
         switch self {
         case .primary:
@@ -55,7 +55,7 @@ enum ButtonStyleType {
     }
 
     func borderColor(isEnabled: Bool) -> Color {
-        guard isEnabled else { return Color.gray.opacity(.opacityOverlay) }
+        guard isEnabled else { return Color.gray.opacity(.opacity3) }
 
         switch self {
         case .outline, .outlineDashed:

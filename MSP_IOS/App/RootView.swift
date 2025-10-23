@@ -13,7 +13,8 @@ struct RootView: View {
     var body: some View {
         Group {
             if appState.isAuthenticated {
-                HomeView(router: appState.router, appState: appState)
+                // Thay HomeView bằng MainTabView
+                MainTabView(router: appState.router, appState: appState)
             } else {
                 CoordinatorView(
                     coordinator: appState.authCoordinator,

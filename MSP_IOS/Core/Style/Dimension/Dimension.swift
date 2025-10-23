@@ -103,6 +103,7 @@ struct Dimension {
         static let i28: CGFloat = 28
         static let i32: CGFloat = 32
         static let i40: CGFloat = 40
+        static let i42: CGFloat = 42
         static let i48: CGFloat = 48
         static let i56: CGFloat = 56
         static let i64: CGFloat = 64
@@ -118,21 +119,18 @@ struct Dimension {
 
     // MARK: - Opacity
     struct Opacity {
-        static let `default`: Double = 1.0
-        static let invisible: Double = 0.0
-        static let subtle: Double = 0.05
-        static let light: Double = 0.1
-        static let medium: Double = 0.5
-        static let semiBold: Double = 0.7
-        static let bold: Double = 0.85
-        static let opaque: Double = 1.0
-
-        // Specific use cases
-        static let disabled: Double = 0.4
-        static let hover: Double = 0.8
-        static let pressed: Double = 0.6
-        static let overlay: Double = 0.3
-        static let shadow: Double = 0.12
+        static let opacity0: Double = 0.0        // Invisible
+        static let opacity05: Double = 0.05      // Subtle
+        static let opacity1: Double = 0.1        // Light
+        static let opacity12: Double = 0.12      // Shadow
+        static let opacity3: Double = 0.3        // Overlay
+        static let opacity4: Double = 0.4        // Disabled
+        static let opacity5: Double = 0.5        // Medium
+        static let opacity6: Double = 0.6        // Pressed
+        static let opacity7: Double = 0.7        // Semibold
+        static let opacity8: Double = 0.8        // Hover
+        static let opacity85: Double = 0.85      // Bold
+        static let opacity1Full: Double = 1.0    // Opaque
     }
 
     // MARK: - Animation Duration

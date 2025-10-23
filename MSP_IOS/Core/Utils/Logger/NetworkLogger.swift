@@ -39,7 +39,7 @@ class NetworkLogger {
         let statusCode = httpResponse.statusCode
         let isSuccess = (200..<300).contains(statusCode)
 
-        var message = """
+        let message = """
         [API]-[RESPONSE]
         Status: \(statusCode)
         Duration: \(String(format: "%.2f", duration))s

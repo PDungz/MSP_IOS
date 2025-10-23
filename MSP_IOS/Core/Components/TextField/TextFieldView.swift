@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct TextFiedView: View {
+struct TextFieldView: View {
 
     // MARK: - Properties
     @Binding private var text: String
@@ -15,16 +15,31 @@ struct TextFiedView: View {
     private var useInternalState: Bool
 
     private let placeholder: String
+    private let animatedPlaceholders: [String]  // Thêm mảng placeholders
     private let iconName: String?
     private let iconNameRight: String?
     private let showClearButton: Bool
     private let isSecure: Bool
     private let keyboardType: UIKeyboardType
+
+    // Customizable UI properties
+    private let textFont: Font
+    private let iconFont: Font
+    private let iconSize: CGFloat
     private let cornerRadius: CGFloat
-    private let showOpacity: Double
+    private let horizontalPadding: CGFloat
+    private let verticalPadding: CGFloat
+    private let shadowColor: Color
+    private let shadowRadius: CGFloat
+    private let shadowX: CGFloat
+    private let shadowY: CGFloat
+    private let spacing: CGFloat
+    private let isAnimatedPlaceholder: Bool
+    private let animationSpeed: Double
+    private let animationPauseDuration: Double
+
     private let onTextChanged: ((String) -> Void)?
     private let onRightIconTapped: (() -> Void)?
-
 
     @FocusState private var isFocused: Bool
 
@@ -32,26 +47,52 @@ struct TextFiedView: View {
     init(
         text: Binding<String>,
         placeholder: String = "Enter text...",
+        animatedPlaceholders: [String]? = nil,  // Optional animated placeholders
         iconName: String? = nil,
         iconNameRight: String? = nil,
         showClearButton: Bool = true,
         isSecure: Bool = false,
         keyboardType: UIKeyboardType = .default,
-        cornerRadius: CGFloat = .radius16,
-        showOpacity: Double = Dimension.Opacity.shadow,
+        textFont: Font = .body,
+        iconFont: Font = .title3,
+        iconSize: CGFloat = 24,
+        cornerRadius: CGFloat = 16,
+        horizontalPadding: CGFloat = 16,
+        verticalPadding: CGFloat = 16,
+        shadowColor: Color = AppColors.shadowMedium,
+        shadowRadius: CGFloat = 16,
+        shadowX: CGFloat = 0,
+        shadowY: CGFloat = 0,
+        spacing: CGFloat = 12,
+        isAnimatedPlaceholder: Bool = false,
+        animationSpeed: Double = 0.1,
+        animationPauseDuration: Double = 1.5,
         onTextChanged: ((String) -> Void)? = nil,
         onRightIconTapped: (() -> Void)? = nil
     ) {
         self._text = text
         self.useInternalState = false
         self.placeholder = placeholder
+        self.animatedPlaceholders = animatedPlaceholders ?? [placeholder]
         self.iconName = iconName
         self.iconNameRight = iconNameRight
         self.showClearButton = showClearButton
         self.isSecure = isSecure
         self.keyboardType = keyboardType
+        self.textFont = textFont
+        self.iconFont = iconFont
+        self.iconSize = iconSize
         self.cornerRadius = cornerRadius
-        self.showOpacity = showOpacity
+        self.horizontalPadding = horizontalPadding
+        self.verticalPadding = verticalPadding
+        self.shadowColor = shadowColor
+        self.shadowRadius = shadowRadius
+        self.shadowX = shadowX
+        self.shadowY = shadowY
+        self.spacing = spacing
+        self.isAnimatedPlaceholder = isAnimatedPlaceholder
+        self.animationSpeed = animationSpeed
+        self.animationPauseDuration = animationPauseDuration
         self.onTextChanged = onTextChanged
         self.onRightIconTapped = onRightIconTapped
     }
@@ -59,26 +100,52 @@ struct TextFiedView: View {
     // Initializer không cần Binding (tự quản lý state cho Preview)
     init(
         placeholder: String = "Enter text...",
+        animatedPlaceholders: [String]? = nil,
         iconName: String? = nil,
         iconNameRight: String? = nil,
         showClearButton: Bool = true,
         isSecure: Bool = false,
         keyboardType: UIKeyboardType = .default,
-        cornerRadius: CGFloat = .radius16,
-        showOpacity: Double = Dimension.Opacity.shadow,
+        textFont: Font = .body,
+        iconFont: Font = .title3,
+        iconSize: CGFloat = 24,
+        cornerRadius: CGFloat = 16,
+        horizontalPadding: CGFloat = 16,
+        verticalPadding: CGFloat = 16,
+        shadowColor: Color = AppColors.shadowMedium,
+        shadowRadius: CGFloat = 16,
+        shadowX: CGFloat = 0,
+        shadowY: CGFloat = 0,
+        spacing: CGFloat = 12,
+        isAnimatedPlaceholder: Bool = false,
+        animationSpeed: Double = 0.1,
+        animationPauseDuration: Double = 1.5,
         onTextChanged: ((String) -> Void)? = nil,
         onRightIconTapped: (() -> Void)? = nil
     ) {
         self._text = .constant("")
         self.useInternalState = true
         self.placeholder = placeholder
+        self.animatedPlaceholders = animatedPlaceholders ?? [placeholder]
         self.iconName = iconName
         self.iconNameRight = iconNameRight
         self.showClearButton = showClearButton
         self.isSecure = isSecure
         self.keyboardType = keyboardType
+        self.textFont = textFont
+        self.iconFont = iconFont
+        self.iconSize = iconSize
         self.cornerRadius = cornerRadius
-        self.showOpacity = showOpacity
+        self.horizontalPadding = horizontalPadding
+        self.verticalPadding = verticalPadding
+        self.shadowColor = shadowColor
+        self.shadowRadius = shadowRadius
+        self.shadowX = shadowX
+        self.shadowY = shadowY
+        self.spacing = spacing
+        self.isAnimatedPlaceholder = isAnimatedPlaceholder
+        self.animationSpeed = animationSpeed
+        self.animationPauseDuration = animationPauseDuration
         self.onTextChanged = onTextChanged
         self.onRightIconTapped = onRightIconTapped
     }
@@ -89,85 +156,138 @@ struct TextFiedView: View {
     }
 
     var body: some View {
-       HStack {
-           if iconName != nil {
-               Image(systemName: iconName!)
+       HStack(spacing: spacing) {
+           // Left Icon
+           if let iconName = iconName {
+               Image(systemName: iconName)
                    .foregroundStyle(AppColors.textPrimary)
-                   .font(.title3)
+                   .font(iconFont)
+                   .frame(width: iconSize, height: iconSize)
            }
 
-           Group {
-               if isSecure {
-                   SecureField(placeholder, text: currentText)
-               } else {
-                   TextField(placeholder, text: currentText)
+           // TextField/SecureField với ZStack
+           ZStack(alignment: .leading) {
+               // Animated Placeholder (chỉ hiển thị khi không có text và không focus)
+               if isAnimatedPlaceholder && currentText.wrappedValue.isEmpty && !isFocused {
+                   TypewriterText(
+                       texts: animatedPlaceholders,
+                       speed: animationSpeed,
+                       pauseDuration: animationPauseDuration,
+                       alignment: .leading
+                   )
+                   .font(textFont)
+                   .foregroundStyle(AppColors.textSecondary.opacity(0.6))
+                   .allowsHitTesting(false)
+               }
+
+               // TextField hoặc SecureField
+               Group {
+                   if isSecure {
+                       SecureField(isAnimatedPlaceholder ? "" : placeholder, text: currentText)
+                   } else {
+                       TextField(isAnimatedPlaceholder ? "" : placeholder, text: currentText)
+                   }
+               }
+               .foregroundStyle(AppColors.textPrimary)
+               .font(textFont)
+               .keyboardType(keyboardType)
+               .focused($isFocused)
+               .onChange(of: currentText.wrappedValue) { newValue in
+                   onTextChanged?(newValue)
                }
            }
-           .foregroundStyle(AppColors.textPrimary)
-           .keyboardType(keyboardType)
-           .focused($isFocused)
-           .onChange(of: currentText.wrappedValue) { newValue in
-               onTextChanged?(newValue)
-           }
 
-           // Clear button
-           if showClearButton {
-               Button(action: {
-                   currentText.wrappedValue = ""
-                   isFocused = false
-               }) {
-                   Image(systemName: "xmark.circle.fill")
-                       .foregroundStyle(AppColors.textPrimary)
-                       .font(.title3)
-                       .frame(width: .iconSize24, height: .iconSize24)
-               }
-               .opacity(
-                currentText.wrappedValue.isEmpty ? .opacityInvisible : .opacityDefault
-               )
-           }
-
+           // Right Icon (ưu tiên hơn Clear button)
            if let iconNameRight = iconNameRight {
                Button(action: {
                    onRightIconTapped?()
                }) {
                    Image(systemName: iconNameRight)
                        .foregroundStyle(AppColors.textPrimary)
-                       .font(.title3)
-                       .frame(width: .iconSize24, height: .iconSize24)
+                       .font(iconFont)
+                       .frame(width: iconSize, height: iconSize)
+                       .contentShape(Rectangle())
                }
+               .buttonStyle(.plain)
+           } else if showClearButton {
+               // Clear button (chỉ hiển thị khi không có right icon)
+               Button(action: {
+                   currentText.wrappedValue = ""
+                   isFocused = false
+               }) {
+                   Image(systemName: "xmark.circle.fill")
+                       .foregroundStyle(AppColors.textSecondary)
+                       .font(iconFont)
+                       .frame(width: iconSize, height: iconSize)
+                       .contentShape(Rectangle())
+               }
+               .buttonStyle(.plain)
+               .opacity(currentText.wrappedValue.isEmpty ? 0.0 : 1.0)
            }
         }
-       .padding(.horizontal, .padding16)
-       .padding(.vertical, .padding16)
+       .padding(.horizontal, horizontalPadding)
+       .padding(.vertical, verticalPadding)
        .background(
         RoundedRectangle(cornerRadius: cornerRadius)
             .fill(AppColors.bgPrimary)
             .shadow(
-                color: AppColors.shadowMedium,
-                radius: cornerRadius,
-                x: 0,
-                y: 0
+                color: shadowColor,
+                radius: shadowRadius,
+                x: shadowX,
+                y: shadowY
             )
        )
     }
 }
 
-// Preview không cần Binding - tự quản lý state
-#Preview {
-    TextFiedView(
-        placeholder: "Email",
-//        iconName: "envelope",
-        keyboardType: .emailAddress
-    )
+// MARK: - Previews
+
+// Preview 1: Normal Placeholder
+#Preview("Normal Placeholder") {
+    VStack(spacing: 20) {
+        TextFieldView(
+            placeholder: "Email",
+            iconName: "envelope",
+            keyboardType: .emailAddress
+        )
+
+        TextFieldView(
+            placeholder: "Password",
+            iconName: "lock",
+            isSecure: true
+        )
+    }
     .padding(.horizontal)
 }
 
-#Preview {
-    TextFiedView(
-        placeholder: "Email",
-        iconName: "envelope",
-        keyboardType: .emailAddress
-    )
+// Preview 2: Animated Placeholder
+#Preview("Animated Placeholder") {
+    VStack(spacing: 20) {
+        TextFieldView(
+            placeholder: "Email",
+            animatedPlaceholders: ["Enter your email", "example@mail.com", "Your email address"],
+            iconName: "envelope",
+            keyboardType: .emailAddress,
+            isAnimatedPlaceholder: true,
+            animationSpeed: 0.08,
+            animationPauseDuration: 1.5
+        )
+
+        TextFieldView(
+            placeholder: "Username",
+            animatedPlaceholders: ["Your username", "Choose a name", "Enter username"],
+            iconName: "person",
+            isAnimatedPlaceholder: true
+        )
+
+        TextFieldView(
+            placeholder: "Search",
+            animatedPlaceholders: ["Search anything", "Find what you need", "Start searching"],
+            iconName: "magnifyingglass",
+            isAnimatedPlaceholder: true,
+            animationSpeed: 0.1,
+            animationPauseDuration: 2.0
+        )
+    }
     .padding(.horizontal)
-    .preferredColorScheme(.dark)
 }

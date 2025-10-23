@@ -137,6 +137,7 @@ extension CGFloat {
     static let iconSize28: CGFloat = Dimension.IconSize.i28
     static let iconSize32: CGFloat = Dimension.IconSize.i32
     static let iconSize40: CGFloat = Dimension.IconSize.i40
+    static let iconSize42: CGFloat = Dimension.IconSize.i42
     static let iconSize48: CGFloat = Dimension.IconSize.i48
     static let iconSize56: CGFloat = Dimension.IconSize.i56
     static let iconSize64: CGFloat = Dimension.IconSize.i64
@@ -144,22 +145,19 @@ extension CGFloat {
 
 // MARK: - Double Extension (cho Opacity)
 extension Double {
-    // MARK: - Opacity
-    static let opacityDefault: Double = Dimension.Opacity.default
-    static let opacityInvisible: Double = Dimension.Opacity.invisible
-    static let opacitySubtle: Double = Dimension.Opacity.subtle
-    static let opacityLight: Double = Dimension.Opacity.light
-    static let opacityMedium: Double = Dimension.Opacity.medium
-    static let opacitySemiBold: Double = Dimension.Opacity.semiBold
-    static let opacityBold: Double = Dimension.Opacity.bold
-    static let opacityOpaque: Double = Dimension.Opacity.opaque
-
-    // Specific use cases
-    static let opacityDisabled: Double = Dimension.Opacity.disabled
-    static let opacityHover: Double = Dimension.Opacity.hover
-    static let opacityPressed: Double = Dimension.Opacity.pressed
-    static let opacityOverlay: Double = Dimension.Opacity.overlay
-    static let opacityShadow: Double = Dimension.Opacity.shadow
+    // MARK: - Opacity (0.0 - 1.0)
+    static let opacity0: Double = Dimension.Opacity.opacity0         // 0.0
+    static let opacity05: Double = Dimension.Opacity.opacity05       // 0.05
+    static let opacity1: Double = Dimension.Opacity.opacity1         // 0.1
+    static let opacity12: Double = Dimension.Opacity.opacity12       // 0.12
+    static let opacity3: Double = Dimension.Opacity.opacity3         // 0.3
+    static let opacity4: Double = Dimension.Opacity.opacity4         // 0.4
+    static let opacity5: Double = Dimension.Opacity.opacity5         // 0.5
+    static let opacity6: Double = Dimension.Opacity.opacity6         // 0.6
+    static let opacity7: Double = Dimension.Opacity.opacity7         // 0.7
+    static let opacity8: Double = Dimension.Opacity.opacity8         // 0.8
+    static let opacity85: Double = Dimension.Opacity.opacity85       // 0.85
+    static let opacity1Full: Double = Dimension.Opacity.opacity1Full // 1.0
 }
 
 // MARK: - TimeInterval Extension

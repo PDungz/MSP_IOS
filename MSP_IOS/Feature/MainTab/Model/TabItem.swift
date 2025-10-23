@@ -10,16 +10,19 @@ import SwiftUI
 enum TabItem: Int, CaseIterable {
     case home = 0
     case payment = 1
-    case message = 2
+    case activity = 2
+    case message = 3
 
     var title: String {
         switch self {
         case .home:
-            return "Trang chủ"
+            return NSLocalizedString("home_category_home", comment: "")
         case .payment:
-            return "Thanh toán"
+            return NSLocalizedString("home_category_payment", comment: "")
+        case .activity:
+            return NSLocalizedString("home_category_activity", comment: "")
         case .message:
-            return "Tin nhắn"
+            return NSLocalizedString("home_category_message", comment: "")
         }
     }
 
@@ -29,8 +32,10 @@ enum TabItem: Int, CaseIterable {
             return "house"
         case .payment:
             return "creditcard"
+        case .activity:
+            return "list.bullet.rectangle.portrait"
         case .message:
-            return "message"
+            return "ellipsis.bubble"
         }
     }
 
@@ -40,8 +45,10 @@ enum TabItem: Int, CaseIterable {
             return "house.fill"
         case .payment:
             return "creditcard.fill"
+        case .activity:
+            return "list.bullet.rectangle.portrait.fill"
         case .message:
-            return "message.fill"
+            return "ellipsis.bubble.fill"
         }
     }
 }

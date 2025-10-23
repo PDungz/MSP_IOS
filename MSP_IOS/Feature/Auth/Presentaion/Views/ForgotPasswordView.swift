@@ -47,7 +47,7 @@ struct ForgotPasswordView: View {
 
                     ButtonView(
                         title: isLoading ? "Sending..." : "Send Reset Link",
-                        shadowColor: AppColors.primaryGreen.opacity(.opacityMedium),
+                        shadowColor: AppColors.primaryGreen.opacity(.opacity3),
                         action: {
                             sendResetLink()
                         }

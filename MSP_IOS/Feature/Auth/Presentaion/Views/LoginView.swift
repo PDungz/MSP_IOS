@@ -131,7 +131,7 @@ struct LoginView: View {
                             title: authViewModel.isLoading ?
                                 NSLocalizedString("login_loading_message", comment: "Loading message") :
                                 NSLocalizedString("login", comment: "Login button"),
-                            shadowColor: AppColors.primaryGreen.opacity(.opacityMedium),
+                            shadowColor: AppColors.primaryGreen.opacity(.opacity3),
                             action: {
                                 Task {
                                     // ✅ Call login - AppState will auto sync from AuthService
@@ -196,7 +196,7 @@ struct LoginView: View {
                     RoundedRectangle(cornerRadius: .radius24)
                         .fill(AppColors.bgPrimary)
                         .shadow(
-                            color: AppColors.black.opacity(.opacityDisabled),
+                            color: AppColors.black.opacity(.opacity4),
                             radius: 20,
                             x: 0,
                             y: 8
