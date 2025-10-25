@@ -25,7 +25,7 @@ struct LoginView: View {
 
     var body: some View {
         ZStack {
-            AppColors.primaryGreen.edgesIgnoringSafeArea(.all)
+            AppColors.grabGreen.edgesIgnoringSafeArea(.all)
 
             VStack {
                 VStack(alignment: .leading, spacing: .spacing16) {
@@ -61,7 +61,7 @@ struct LoginView: View {
                         TextFieldView(
                             text: $authViewModel.username,
                             placeholder: NSLocalizedString("login_username", comment: "Username placeholder"),
-                            iconName: "person.fill",
+                            leftIcon: .system("person.fill"),
                             keyboardType: .emailAddress
                         )
                         .padding(.bottom, .padding12)
@@ -70,8 +70,8 @@ struct LoginView: View {
                         TextFieldView(
                             text: $authViewModel.password,
                             placeholder: NSLocalizedString("login_password", comment: "Password placeholder"),
-                            iconName: "lock.fill",
-                            iconNameRight: isPasswordVisible ? "eye.slash.fill" : "eye.fill",
+                            leftIcon: .system("lock.fill"),
+                            rightIcon: .icon(.system(isPasswordVisible ? "eye.slash.fill" : "eye.fill")),
                             showClearButton: false,
                             isSecure: !isPasswordVisible,
                             onRightIconTapped: {
@@ -131,7 +131,7 @@ struct LoginView: View {
                             title: authViewModel.isLoading ?
                                 NSLocalizedString("login_loading_message", comment: "Loading message") :
                                 NSLocalizedString("login", comment: "Login button"),
-                            shadowColor: AppColors.primaryGreen.opacity(.opacity3),
+                            shadowColor: AppColors.grabGreen.opacity(.opacity3),
                             action: {
                                 Task {
                                     // ✅ Call login - AppState will auto sync from AuthService

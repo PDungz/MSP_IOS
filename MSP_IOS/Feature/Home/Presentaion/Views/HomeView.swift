@@ -9,38 +9,43 @@ import SwiftUI
 
 struct HomeView: View {
 
-    @ObservedObject var router: Router
+    let coordinator: HomeCoordinator
     @ObservedObject var appState: AppState
+    @State private var searchText: String = ""
 
     var body: some View {
         VStack {
             HStack{
                 CircleButtonView(
                     icon: .system("qrcode.viewfinder"),
-                    backgroundColor: AppColors.bgPrimary
-                    .opacity(.opacity3),
-                    size: .iconSize42) {
-                    print("Small")
+                    backgroundColor: AppColors.bgPrimary.opacity(.opacity3),
+                    size: .iconSize42
+                ) {
+                    print("QR Code tapped")
                 }
+
                 TextFieldView(
+                    text: $searchText,
+                    placeholder: NSLocalizedString("home_search1", comment: "Search placeholder"),
                     animatedPlaceholders: [
                         NSLocalizedString("home_search1", comment: "Search placeholder"),
                         NSLocalizedString("home_search2", comment: "Search placeholder"),
                     ],
-                    iconName: "magnifyingglass",
+                    leftIcon: .system("magnifyingglass"),
                     showClearButton: false,
-                    keyboardType: .emailAddress,
+                    keyboardType: .default,
                     verticalPadding: .padding10,
-                    isAnimatedPlaceholder: true
+                    isAnimatedPlaceholder: true,
+                    backgroundColor: AppColors.white,
+                    shadowColor: .clear
                 )
 
                 CircleButtonView(
                     icon: .system("person.fill"),
-                    backgroundColor: AppColors.bgPrimary
-                    .opacity(.opacity4),
-                    size: .iconSize42)  {
-                    print("Small")
-
+                    backgroundColor: AppColors.bgPrimary.opacity(.opacity4),
+                    size: .iconSize42
+                ) {
+                    print("Profile tapped")
                 }
             }
             .padding(.horizontal)
@@ -50,8 +55,8 @@ struct HomeView: View {
                 LinearGradient(
                     gradient: Gradient(
                         colors: [
-                            AppColors.primaryGreenLight,
-                            AppColors.primaryGreenLight.opacity(.opacity8)
+                            AppColors.grabGreen,
+                            AppColors.grabGreenLight
                         ]
                     ),
                     startPoint: .leading,
@@ -59,7 +64,7 @@ struct HomeView: View {
                 )
             )
 
-            CategoryView()
+            CategoryView(coordinator: coordinator)
 
             Spacer()
         }
@@ -67,5 +72,9 @@ struct HomeView: View {
 }
 
 #Preview {
-    HomeView(router: Router(), appState: AppState())
+    let router = Router()
+    let appState = AppState()
+    let coordinator = HomeCoordinator(router: router, appState: appState)
+
+    return HomeView(coordinator: coordinator, appState: appState)
 }

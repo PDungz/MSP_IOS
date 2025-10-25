@@ -22,7 +22,7 @@ struct ForgotPasswordView: View {
                 VStack(spacing: .spacing8) {
                     Image(systemName: "lock.shield")
                         .font(.system(size: 60))
-                        .foregroundColor(AppColors.primaryGreen)
+                        .foregroundColor(AppColors.grabGreen)
 
                     Text("Forgot Password?")
                         .font(.title)
@@ -41,13 +41,16 @@ struct ForgotPasswordView: View {
                     TextFieldView(
                         text: $email,
                         placeholder: "Email",
-                        iconName: "envelope.fill",
+                        leftIcon: .system("envelope.fill"),
                         keyboardType: .emailAddress
                     )
 
                     ButtonView(
                         title: isLoading ? "Sending..." : "Send Reset Link",
-                        shadowColor: AppColors.primaryGreen.opacity(.opacity3),
+                        config: ButtonConfig(
+                            style: .primary,
+                            isLoading: isLoading
+                        ),
                         action: {
                             sendResetLink()
                         }
@@ -64,7 +67,7 @@ struct ForgotPasswordView: View {
                             Text("Back to Login")
                         }
                         .font(.subheadline)
-                        .foregroundColor(AppColors.primaryGreen)
+                        .foregroundColor(AppColors.grabGreen)
                     }
                 }
                 .padding(.horizontal, .padding32)

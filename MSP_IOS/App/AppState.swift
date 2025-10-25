@@ -21,6 +21,10 @@ final class AppState: ObservableObject {
         AuthCoordinator(router: router, appState: self)
     }()
 
+    lazy var homeCoordinator: HomeCoordinator = {
+        HomeCoordinator(router: router, appState: self)
+    }()
+
     init() {
         self.router = Router()
         setupAuthObserver()

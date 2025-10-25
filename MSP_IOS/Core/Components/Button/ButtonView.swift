@@ -10,20 +10,22 @@ import SwiftUI
 // MARK: - ButtonView
 struct ButtonView<Content: View>: View {
     // MARK: - Properties
-    private let style: ButtonStyleType
-    private let size: ButtonSizeType
-    private let fitContent: Bool
-    private let isEnabled: Bool
-    private let isLoading: Bool
-    private let withShadow: Bool
-    private let shadowColor: Color?
-    private let shadowRadius: CGFloat?
-    private let shadowOffset: CGFloat?
-    private let cornerRadius: CGFloat?
+    private let config: ButtonConfig
     private let content: () -> Content
     private let action: () -> Void
 
     // MARK: - Initializer
+    init(
+        config: ButtonConfig = ButtonConfig(),
+        action: @escaping () -> Void,
+        @ViewBuilder content: @escaping () -> Content
+    ) {
+        self.config = config
+        self.content = content
+        self.action = action
+    }
+
+    // MARK: - Legacy Initializer (for backward compatibility)
     init(
         style: ButtonStyleType = .primary,
         size: ButtonSizeType = .small,
@@ -38,16 +40,18 @@ struct ButtonView<Content: View>: View {
         action: @escaping () -> Void,
         @ViewBuilder content: @escaping () -> Content
     ) {
-        self.style = style
-        self.size = size
-        self.fitContent = fitContent
-        self.isEnabled = isEnabled
-        self.isLoading = isLoading
-        self.withShadow = withShadow
-        self.shadowColor = shadowColor
-        self.shadowRadius = shadowRadius
-        self.shadowOffset = shadowOffset
-        self.cornerRadius = cornerRadius
+        self.config = ButtonConfig(
+            style: style,
+            size: size,
+            fitContent: fitContent,
+            cornerRadius: cornerRadius,
+            isEnabled: isEnabled,
+            isLoading: isLoading,
+            withShadow: withShadow,
+            shadowColor: shadowColor,
+            shadowRadius: shadowRadius,
+            shadowOffset: shadowOffset
+        )
         self.content = content
         self.action = action
     }
@@ -55,62 +59,78 @@ struct ButtonView<Content: View>: View {
     // MARK: - Body
     var body: some View {
         Button(action: {
-            if isEnabled && !isLoading {
+            if config.isEnabled && !config.isLoading {
                 action()
             }
         }) {
             Group {
-                if isLoading {
+                if config.isLoading {
                     ProgressView()
-                        .progressViewStyle(CircularProgressViewStyle(tint: style.foregroundColor(isEnabled: isEnabled)))
+                        .progressViewStyle(CircularProgressViewStyle(tint: config.effectiveForegroundColor))
                         .scaleEffect(0.8)
                 } else {
                     content()
                 }
             }
-            .foregroundStyle(style.foregroundColor(isEnabled: isEnabled))
-            .frame(maxWidth: (style == .text || fitContent) ? nil : .infinity)
-            .frame(height: size.height)
-            .padding(.horizontal, size.horizontalPadding)
-            .padding(.vertical, size.verticalPadding)
-            .background(style.backgroundColor(isEnabled: isEnabled))
-            .cornerRadius(cornerRadius ?? .radius16)  // ✅ Sử dụng từ DimensionExtension
+            .foregroundStyle(config.effectiveForegroundColor)
+            .font(config.effectiveFontSize)
+            .frame(maxWidth: (config.style == .text || config.fitContent) ? nil : .infinity)
+            .frame(height: config.effectiveHeight)
+            .padding(.horizontal, config.effectiveHorizontalPadding)
+            .padding(.vertical, config.effectiveVerticalPadding)
+            .background(config.effectiveBackgroundColor)
+            .cornerRadius(config.effectiveCornerRadius)
             .overlay(
                 Group {
-                    if style == .outlineDashed {
-                        RoundedRectangle(cornerRadius: cornerRadius ?? .radius16)  // ✅
+                    if config.style == .outlineDashed {
+                        RoundedRectangle(cornerRadius: config.effectiveCornerRadius)
                             .strokeBorder(
                                 style: StrokeStyle(
-                                    lineWidth: .borderWidth2,  // ✅ Sử dụng từ DimensionExtension
+                                    lineWidth: config.effectiveBorderWidth,
                                     dash: [8, 4]
                                 )
                             )
-                            .foregroundStyle(style.borderColor(isEnabled: isEnabled))
-                    } else if style == .outline {
-                        RoundedRectangle(cornerRadius: cornerRadius ?? .radius16)  // ✅
+                            .foregroundStyle(config.effectiveBorderColor)
+                    } else if config.style == .outline {
+                        RoundedRectangle(cornerRadius: config.effectiveCornerRadius)
                             .stroke(
-                                style.borderColor(isEnabled: isEnabled),
-                                lineWidth: .borderWidth2  // ✅ Sử dụng từ DimensionExtension
+                                config.effectiveBorderColor,
+                                lineWidth: config.effectiveBorderWidth
                             )
                     }
                 }
             )
             .shadow(
-                color: (withShadow && isEnabled) ? (shadowColor ?? .black.opacity(.opacity3)) : .clear,  // ✅ Sử dụng opacity
-                radius: shadowRadius ?? 8,
+                color: (config.withShadow && config.isEnabled) ? (config.shadowColor ?? .black.opacity(.opacity3)) : .clear,
+                radius: config.shadowRadius ?? 8,
                 x: 0,
-                y: shadowOffset ?? 3
+                y: config.shadowOffset ?? 3
             )
         }
-        .disabled(!isEnabled || isLoading)
-        .opacity(isEnabled ? 1.0 : .opacity3)  // ✅ Sử dụng từ DimensionExtension
-        .animation(.easeInOut(duration: .durationFast), value: isLoading)  // ✅ Sử dụng từ DimensionExtension
+        .disabled(!config.isEnabled || config.isLoading)
+        .opacity(config.isEnabled ? 1.0 : .opacity3)
+        .animation(.easeInOut(duration: .durationFast), value: config.isLoading)
     }
 }
 
 // MARK: - Convenience Extensions
 extension ButtonView {
     /// Button với text đơn giản
+    init(
+        title: String,
+        config: ButtonConfig = ButtonConfig(),
+        action: @escaping () -> Void
+    ) where Content == Text {
+        self.init(
+            config: config,
+            action: action
+        ) {
+            Text(title)
+                .fontWeight(.bold)
+        }
+    }
+
+    /// Button với text đơn giản (legacy - backward compatibility)
     init(
         title: String,
         style: ButtonStyleType = .primary,
@@ -125,26 +145,55 @@ extension ButtonView {
         cornerRadius: CGFloat? = nil,
         action: @escaping () -> Void
     ) where Content == Text {
-        self.init(
+        let config = ButtonConfig(
             style: style,
             size: size,
             fitContent: fitContent,
+            cornerRadius: cornerRadius,
             isEnabled: isEnabled,
             isLoading: isLoading,
             withShadow: withShadow,
             shadowColor: shadowColor,
             shadowRadius: shadowRadius,
-            shadowOffset: shadowOffset,
-            cornerRadius: cornerRadius,
+            shadowOffset: shadowOffset
+        )
+        self.init(
+            title: title,
+            config: config,
+            action: action
+        )
+    }
+
+    /// Button với text và icon (new API with config)
+    init(
+        title: String,
+        icon: IconType,
+        iconPosition: IconPositionType = .leading,
+        config: ButtonConfig = ButtonConfig(),
+        action: @escaping () -> Void
+    ) where Content == AnyView {
+        self.init(
+            config: config,
             action: action
         ) {
-            Text(title)
-                .font(size.fontSize)
-                .fontWeight(.bold)
+            AnyView(
+                HStack(spacing: .spacing8) {
+                    if iconPosition == .leading {
+                        ButtonView.iconView(icon, config: config)
+                    }
+
+                    Text(title)
+                        .fontWeight(.bold)
+
+                    if iconPosition == .trailing {
+                        ButtonView.iconView(icon, config: config)
+                    }
+                }
+            )
         }
     }
 
-    /// Button với text và icon
+    /// Button với text và icon (legacy - backward compatibility)
     init(
         title: String,
         icon: IconType,
@@ -161,75 +210,62 @@ extension ButtonView {
         cornerRadius: CGFloat? = nil,
         action: @escaping () -> Void
     ) where Content == AnyView {
-        self.init(
+        let config = ButtonConfig(
             style: style,
             size: size,
             fitContent: fitContent,
+            cornerRadius: cornerRadius,
             isEnabled: isEnabled,
             isLoading: isLoading,
             withShadow: withShadow,
             shadowColor: shadowColor,
             shadowRadius: shadowRadius,
-            shadowOffset: shadowOffset,
-            cornerRadius: cornerRadius,
+            shadowOffset: shadowOffset
+        )
+        self.init(
+            title: title,
+            icon: icon,
+            iconPosition: iconPosition,
+            config: config,
             action: action
-        ) {
-            AnyView(
-                HStack(spacing: .spacing8) {  // ✅ Sử dụng từ DimensionExtension
-                    if iconPosition == .leading {
-                        ButtonView.iconView(icon, size: size, style: style, isEnabled: isEnabled)
-                    }
-
-                    Text(title)
-                        .font(size.fontSize)
-                        .fontWeight(.bold)
-
-                    if iconPosition == .trailing {
-                        ButtonView.iconView(icon, size: size, style: style, isEnabled: isEnabled)
-                    }
-                }
-            )
-        }
+        )
     }
 
     /// Helper icon view
     @ViewBuilder
     private static func iconView(
         _ iconType: IconType,
-        size: ButtonSizeType,
-        style: ButtonStyleType,
-        isEnabled: Bool
+        config: ButtonConfig
     ) -> some View {
         switch iconType {
         case .system(let name):
             Image(systemName: name)
-                .font(size.fontSize)
 
         case .asset(let name):
             Image(name)
                 .resizable()
                 .scaledToFit()
-                .frame(width: size.iconSize, height: size.iconSize)
+                .frame(width: config.size.iconSize, height: config.size.iconSize)
 
         case .url(let urlString):
             AsyncImage(url: URL(string: urlString)) { phase in
                 switch phase {
                 case .empty:
                     ProgressView()
-                        .frame(width: size.iconSize, height: size.iconSize)
+                        .frame(width: config.size.iconSize, height: config.size.iconSize)
 
                 case .success(let image):
                     image
                         .resizable()
                         .scaledToFit()
-                        .frame(width: size.iconSize, height: size.iconSize)
+                        .frame(width: config.size.iconSize, height: config.size.iconSize)
                         .clipShape(Circle())
 
                 case .failure:
                     Image(systemName: "exclamationmark.triangle")
                         .resizable()
                         .scaledToFit()
-                        .frame(width: size.iconSize, height: size.iconSize)
+                        .frame(width: config.size.iconSize, height: config.size.iconSize)
                         .foregroundStyle(.red)
 
                 @unknown default:
@@ -241,7 +277,7 @@ extension ButtonView {
             image
                 .resizable()
                 .scaledToFit()
-                .frame(width: size.iconSize, height: size.iconSize)
+                .frame(width: config.size.iconSize, height: config.size.iconSize)
         }
     }
 }
@@ -250,209 +286,216 @@ extension ButtonView {
 // MARK: - Preview
 #Preview {
     ScrollView {
-        VStack(spacing: .spacing24) {  // ✅ Sử dụng spacing từ DimensionExtension
-            Text("Default Corner Radius (.radius16)")
+        VStack(spacing: .spacing24) {
+
+            // MARK: - 1. Legacy API (Cách cũ - vẫn hoạt động)
+            Text("1️⃣ Legacy API - Cách cũ")
                 .font(.headline)
 
             ButtonView(title: "Primary Button", style: .primary) {
                 print("Primary")
             }
 
-            ButtonView(title: "Secondary", style: .secondary) {
+            ButtonView(title: "Secondary", style: .secondary, size: .large) {
                 print("Secondary")
             }
 
             Divider()
 
-            Text("Custom Corner Radius")
+            // MARK: - 2. NEW API với ButtonConfig
+            Text("2️⃣ NEW API - ButtonConfig")
                 .font(.headline)
 
             ButtonView(
-                title: "Small Radius (.radius8)",
-                style: .primary,
-                cornerRadius: .radius8  // ✅
-            ) {
-                print("Small radius")
-            }
-
-            ButtonView(
-                title: "Large Radius (.radius24)",
-                style: .outline,
-                cornerRadius: .radius24  // ✅
-            ) {
-                print("Large radius")
-            }
-
-            ButtonView(
-                title: "Extra Large (.radius32)",
-                style: .secondary,
-                cornerRadius: .radius32  // ✅
-            ) {
-                print("Extra large")
-            }
-
-            ButtonView(
-                title: "Square (.radius0)",
-                style: .danger,
-                cornerRadius: .radius0  // ✅
-            ) {
-                print("Square")
-            }
-
-            Divider()
-
-            Text("Corner Radius + Custom Shadow")
-                .font(.headline)
-
-            ButtonView(
-                title: "Rounded + Shadow",
-                style: .primary,
-                shadowColor: .blue.opacity(.opacity3),  // ✅
-                shadowRadius: 12,
-                shadowOffset: 5,
-                cornerRadius: .radius20  // ✅
-            ) {
-                print("Custom all")
-            }
-
-            Divider()
-
-            Text("Fit Content + Corner Radius")
-                .font(.headline)
-
-            HStack(spacing: .spacing12) {  // ✅
-                ButtonView(
-                    title: "Small",
+                title: "Config Style",
+                config: ButtonConfig(
                     style: .primary,
-                    fitContent: true,
-                    cornerRadius: .radius8  // ✅
-                ) {
-                    print("Small")
-                }
+                    size: .medium,
+                    cornerRadius: .radius12
+                )
+            ) {
+                print("Config button")
+            }
 
-                ButtonView(
-                    title: "Large",
+            ButtonView(
+                title: "Inline Config",
+                config: .init(style: .secondary, fitContent: true)
+            ) {
+                print("Inline")
+            }
+
+            Divider()
+
+            // MARK: - 3. Custom Colors (MỚI - Không fix cứng)
+            Text("3️⃣ Custom Colors - LINH HOẠT")
+                .font(.headline)
+
+            ButtonView(
+                title: "Custom Background",
+                config: ButtonConfig(
+                    style: .primary,
+                    backgroundColor: .purple,
+                    foregroundColor: .yellow
+                )
+            ) {
+                print("Purple")
+            }
+
+            ButtonView(
+                title: "Custom Border",
+                config: ButtonConfig(
                     style: .outline,
-                    fitContent: true,
-                    cornerRadius: .radius24  // ✅
-                ) {
-                    print("Large")
-                }
+                    foregroundColor: .orange, borderColor: .orange,
+                    borderWidth: 4
+                )
+            ) {
+                print("Orange border")
+            }
 
-                ButtonView(
-                    title: "Round",
+            Divider()
+
+            // MARK: - 4. Custom Sizing (MỚI - Không fix cứng)
+            Text("4️⃣ Custom Sizing - LINH HOẠT")
+                .font(.headline)
+
+            ButtonView(
+                title: "Extra Large Custom",
+                config: ButtonConfig(
+                    style: .primary,
+                    height: 70,
+                    horizontalPadding: 40,
+                    fontSize: .title2
+                )
+            ) {
+                print("Big")
+            }
+
+            ButtonView(
+                title: "Mini",
+                config: ButtonConfig(
                     style: .secondary,
                     fitContent: true,
-                    cornerRadius: .radius32  // ✅
+                    height: 28,
+                    horizontalPadding: 10,
+                    fontSize: .caption
+                )
+            ) {
+                print("Small")
+            }
+
+            Divider()
+
+            // MARK: - 5. Button với Icon - NEW
+            Text("5️⃣ Button với Icon")
+                .font(.headline)
+
+            HStack {
+                ButtonView(
+                    title: "Back",
+                    icon: .system("arrow.left"),
+                    config: ButtonConfig(
+                        style: .text,
+                        fitContent: true,
+                        withShadow: false,
+                        foregroundColor: AppColors.grabGreen
+                    )
                 ) {
-                    print("Round")
+                    print("Back")
                 }
+                Spacer()
+            }
+
+            ButtonView(
+                title: "Star Button",
+                icon: .system("star.fill"),
+                config: ButtonConfig(
+                    style: .primary,
+                    cornerRadius: .radius32,
+                    backgroundColor: .orange
+                )
+            ) {
+                print("Star")
             }
 
             Divider()
 
-            Text("With Icons + Corner Radius")
+            // MARK: - 6. Kết hợp tất cả options
+            Text("6️⃣ Full Customization")
                 .font(.headline)
 
             ButtonView(
-                title: "Add Item",
-                icon: .system("plus"),
-                style: .primary,
-                cornerRadius: .radius12  // ✅
+                title: "Fully Custom",
+                config: ButtonConfig(
+                    style: .outline,
+                    fitContent: false,
+                    cornerRadius: .radius24,
+                    withShadow: true,
+                    shadowColor: .blue.opacity(0.4),
+                    shadowRadius: 10,
+                    shadowOffset: 5,
+                    backgroundColor: .cyan.opacity(0.1),
+                    foregroundColor: .blue,
+                    borderColor: .blue,
+                    borderWidth: 3,
+                    height: 60,
+                    fontSize: .title3
+                )
             ) {
-                print("Add")
-            }
-
-            ButtonView(
-                title: "Delete",
-                icon: .system("trash"),
-                iconPosition: .trailing,
-                style: .danger,
-                cornerRadius: .radius20  // ✅
-            ) {
-                print("Delete")
+                print("Full custom")
             }
 
             Divider()
 
-            Text("Custom Content + Corner Radius")
+            // MARK: - 7. States
+            Text("7️⃣ Button States")
                 .font(.headline)
 
             ButtonView(
-                style: .primary,
-                cornerRadius: .radius20  // ✅
-            ) {
-                print("Custom 1")
-            } content: {
-                HStack(spacing: .spacing8) {  // ✅
-                    Image(systemName: "star.fill")
-                    VStack(alignment: .leading, spacing: .spacing2) {  // ✅
-                        Text("Premium")
-                            .font(.headline)
-                        Text("Upgrade now")
-                            .font(.caption)
-                    }
-                }
-            }
-
-            ButtonView(
-                style: .outline,
-                fitContent: true,
-                cornerRadius: .radius32  // ✅
-            ) {
-                print("Custom 2")
-            } content: {
-                HStack(spacing: .spacing12) {  // ✅
-                    Image(systemName: "heart.fill")
-                        .foregroundStyle(.red)
-                    Text("Like")
-                    Image(systemName: "arrow.up")
-                }
-            }
-
-            Divider()
-
-            Text("Outline Styles + Corner Radius")
-                .font(.headline)
-
-            ButtonView(
-                title: "Outline",
-                style: .outline,
-                cornerRadius: .radius12  // ✅
-            ) {
-                print("Outline")
-            }
-
-            ButtonView(
-                title: "Outline Dashed",
-                style: .outlineDashed,
-                cornerRadius: .radius20  // ✅
-            ) {
-                print("Outline Dashed")
-            }
-
-            Divider()
-
-            Text("States")
-                .font(.headline)
-
-            ButtonView(
-                title: "Loading",
-                isLoading: true,
-                cornerRadius: .radius20  // ✅
+                title: "Loading...",
+                config: ButtonConfig(
+                    style: .primary,
+                    isLoading: true
+                )
             ) {
                 print("Loading")
             }
 
             ButtonView(
                 title: "Disabled",
-                isEnabled: false,
-                cornerRadius: .radius20  // ✅
+                config: ButtonConfig(
+                    style: .secondary,
+                    isEnabled: false
+                )
             ) {
                 print("Disabled")
             }
+
+            Divider()
+
+            // MARK: - 8. Custom Content
+            Text("8️⃣ Custom Content")
+                .font(.headline)
+
+            ButtonView(
+                config: ButtonConfig(
+                    style: .primary,
+                    cornerRadius: .radius20,
+                    height: 80
+                )
+            ) {
+                print("Premium")
+            } content: {
+                VStack(spacing: 4) {
+                    Image(systemName: "crown.fill")
+                        .font(.title2)
+                    Text("Premium")
+                        .font(.headline)
+                    Text("Nâng cấp ngay")
+                        .font(.caption)
+                }
+            }
         }
-        .padding(.horizontal, .padding24)  // ✅ Sử dụng padding từ DimensionExtension
-        .padding(.vertical, .spacing24)  // ✅
+        .padding(.horizontal, .padding24)
+        .padding(.vertical, .spacing24)
     }
 }

@@ -42,7 +42,7 @@ enum Category: String, Codable, CaseIterable {
     var icon: String {
         switch self {
         case .motorcycle:
-            return "scooter"
+            return "motorcycle.fill"
         case .car:
             return "car.fill"
         case .food:
@@ -63,55 +63,26 @@ enum Category: String, Codable, CaseIterable {
     var color: Color {
         switch self {
         case .motorcycle:
-            return .green
+            return AppColors.grabBike
         case .car:
-            return .blue
+            return AppColors.grabCar
         case .food:
-            return .orange
+            return AppColors.grabFood
         case .shipping:
-            return .purple
+            return AppColors.grabExpress
         case .shopping:
-            return .pink
+            return AppColors.grabMart
         case .voucher:
-            return .red
+            return AppColors.error
         case .bookDriver:
-            return .indigo
+            return AppColors.grabPay
         case .all:
-            return .gray
-        }
-    }
-
-    // Destination view cho navigation
-    @ViewBuilder
-    var destinationView: some View {
-        switch self {
-        case .motorcycle:
-            MotorcycleBookingView()
-        case .car:
-            CarBookingView()
-        case .food:
-            FoodOrderView()
-        case .shipping:
-            ShippingView()
-        case .shopping:
-            ShoppingView()
-        case .voucher:
-            VoucherView()
-        case .bookDriver:
-            BookDriverView()
-        case .all:
-            AllCategoriesView()
+            return AppColors.grabGreen
         }
     }
 }
 
 // MARK: - Placeholder Views (thay thế bằng views thực tế của bạn)
-struct MotorcycleBookingView: View {
-    var body: some View {
-        Text("Đặt xe máy")
-            .navigationTitle("Xe máy")
-    }
-}
 
 struct CarBookingView: View {
     var body: some View {
@@ -157,7 +128,76 @@ struct BookDriverView: View {
 
 struct AllCategoriesView: View {
     var body: some View {
-        Text("Tất cả dịch vụ")
-            .navigationTitle("Tất cả")
+        AllCategoriesContentView()
+    }
+}
+
+struct AllCategoriesContentView: View {
+    @EnvironmentObject var appState: AppState
+
+    var body: some View {
+        NavigationView {
+            VStack(spacing: 0) {
+                // Header
+                HStack {
+                    Text("Tất cả dịch vụ")
+                        .font(.title2)
+                        .fontWeight(.bold)
+
+//                    Spacer()
+//
+//                    Button(action: {
+//                        appState.homeCoordinator.dismissSheet()
+//                    }) {
+//                        Image(systemName: "xmark.circle.fill")
+//                            .font(.title2)
+//                            .foregroundColor(.gray)
+//                    }
+                }
+                .padding()
+
+                Divider()
+
+                // Content - Danh sách tất cả categories
+                ScrollView {
+                    LazyVGrid(columns: [
+                        GridItem(.flexible()),
+                        GridItem(.flexible()),
+                        GridItem(.flexible())
+                    ], spacing: 16) {
+                        ForEach(Category.allCases.filter { $0 != .all }, id: \.self) { category in
+                            Button {
+                                // Dismiss sheet và navigate đến category tương ứng
+                                appState.homeCoordinator.dismissSheet()
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                    appState.homeCoordinator.navigateToCategory(category)
+                                }
+                            } label: {
+                                VStack(spacing: 8) {
+                                    Image(systemName: category.icon)
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(height: 32)
+                                        .foregroundColor(category.color)
+
+                                    Text(category.title)
+                                        .font(.caption)
+                                        .foregroundColor(.primary)
+                                        .multilineTextAlignment(.center)
+                                }
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(Color.gray.opacity(0.1))
+                                .cornerRadius(12)
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                        }
+                    }
+                    .padding()
+                }
+            }
+        }
+        .presentationDetents([.medium, .large])
+        .presentationDragIndicator(.visible)
     }
 }

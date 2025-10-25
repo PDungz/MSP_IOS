@@ -49,12 +49,12 @@ struct TabBarButton: View {
             VStack(spacing: .spacing4) {
                 Image(systemName: isSelected ? tab.selectedIcon : tab.icon)
                     .font(.system(size: 24, weight: isSelected ? .semibold : .regular))
-                    .foregroundColor(isSelected ? AppColors.primaryGreenLight : AppColors.textSecondary)
+                    .foregroundColor(isSelected ? AppColors.grabGreen : AppColors.textSecondary)
                     .frame(height: 28)
 
                 Text(tab.title)
                     .font(.system(size: 11, weight: isSelected ? .semibold : .regular))
-                    .foregroundColor(isSelected ? AppColors.primaryGreenLight : AppColors.textSecondary)
+                    .foregroundColor(isSelected ? AppColors.grabGreen : AppColors.textSecondary)
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, .padding8)

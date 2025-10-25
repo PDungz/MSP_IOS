@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct CategoryView: View {
+    let coordinator: HomeCoordinator
     let categories = Category.allCases
 
     let rows = [
@@ -28,7 +29,9 @@ struct CategoryView: View {
 
             LazyHGrid(rows: rows, spacing: gridSpacing) {
                 ForEach(categories, id: \.self) { category in
-                    NavigationLink(destination: category.destinationView) {
+                    Button {
+                        coordinator.navigateToCategory(category)
+                    } label: {
                         CategoryItemView(category: category)
                             .frame(width: itemWidth)
                     }
@@ -62,14 +65,16 @@ struct CategoryItemView: View {
         .frame(maxWidth: .infinity)
         .padding(.horizontal, .padding4)
         .padding(.vertical, .padding12)
-        .background(AppColors.primaryGreenLight.opacity(.opacity1))
+        .background(AppColors.grabGreenPastel)
         .cornerRadius(.radius12)
-        .shadow(color: .black.opacity(.opacity1), radius: .radius2)
+        .shadow(color: AppColors.shadowSM, radius: .radius4, x: 0, y: 2)
     }
 }
 
 #Preview {
-    NavigationView {
-        CategoryView()
-    }
+    let router = Router()
+    let appState = AppState()
+    let coordinator = HomeCoordinator(router: router, appState: appState)
+
+    return CategoryView(coordinator: coordinator)
 }

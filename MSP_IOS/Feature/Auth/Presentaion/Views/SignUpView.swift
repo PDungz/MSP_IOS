@@ -19,7 +19,7 @@ struct SignUpView: View {
                 VStack(spacing: .spacing8) {
                     Image(systemName: "lock.shield")
                         .font(.system(size: 60))
-                        .foregroundColor(AppColors.primaryGreen)
+                        .foregroundColor(AppColors.grabGreen)
                     
                     Text("Forgot Password?")
                         .font(.title)
