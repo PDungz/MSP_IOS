@@ -117,6 +117,7 @@ extension CGFloat {
     static let spacing36: CGFloat = Dimension.Spacing.s36
     static let spacing40: CGFloat = Dimension.Spacing.s40
     static let spacing48: CGFloat = Dimension.Spacing.s48
+    static let spacing52: CGFloat = Dimension.Spacing.s52
     static let spacing56: CGFloat = Dimension.Spacing.s56
     static let spacing64: CGFloat = Dimension.Spacing.s64
 

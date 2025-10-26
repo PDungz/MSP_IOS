@@ -80,6 +80,7 @@ struct Dimension {
         static let s40: CGFloat = 40
         static let s42: CGFloat = 42
         static let s48: CGFloat = 48
+        static let s52: CGFloat = 52
         static let s56: CGFloat = 56
         static let s64: CGFloat = 64
     }

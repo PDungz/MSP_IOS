@@ -17,6 +17,7 @@ struct MSP_IOSApp: App {
         WindowGroup {
             RootView()
                 .environmentObject(appState)
+                .preferredColorScheme(.light) // Force Light Mode - ignore system Dark Mode
                 .onAppear {
                     setupApp()
                 }
