@@ -13,6 +13,9 @@ struct MotorcycleBookingView: View {
     @State private var scrollOffset: CGFloat = 0
     @State private var isRefreshing: Bool = false
 
+    // Threshold để trigger refresh (kéo xuống bao nhiêu pixel)
+    private let refreshThreshold: CGFloat = 80
+
     var body: some View {
         GeometryReader { geometry in
             let safeAreaTop = geometry.safeAreaInsets.top
@@ -119,29 +122,31 @@ struct MotorcycleBookingView: View {
                                 )
                         }
                     )
-                    .overlay(
-                        isRefreshing ?
-                        GeometryReader { headerGeo in
+                    .overlay(alignment: .center) {
+                        if isRefreshing {
                             ZStack {
-                                Color.clear
-                                    .background(.ultraThinMaterial)
+                                // Background blur
+                                GeometryReader { headerGeo in
+                                    Color.clear
+                                        .background(.ultraThinMaterial)
+                                        .frame(
+                                            width: headerGeo.size.width,
+                                            height: max(
+                                                headerGeo.size.height + safeAreaTop + stretchOffset, 800
+                                            )
+                                        )
+                                        .offset(
+                                            y: min(
+                                                -safeAreaTop - stretchOffset, -500
+                                            )
+                                        )
+                                }
 
+                                // Loading indicator always centered
                                 LoadingDotsView()
-
                             }
-                            .frame(
-                                width: headerGeo.size.width,
-                                height: max(
-                                    headerGeo.size.height + safeAreaTop, 800
-                                )
-                            )
-                            .offset(
-                                y: min(
-                                    -safeAreaTop, -500
-                                )
-                            )
-                        } : nil
-                    )
+                        }
+                    }
 
 
                     // Content area
@@ -183,50 +188,41 @@ struct MotorcycleBookingView: View {
                     }
                     .background(AppColors.bgPrimary)
                 }
+                .background(GeometryReader{
+                    self.detecScrollOffset(grometry: $0)
+                })
             }
-            .coordinateSpace(name: "scroll")
-            .onPreferenceChange(ScrollOffsetPreferenceKey.self) { value in
-                scrollOffset = value
-
-                // Bật isRefreshing khi user kéo xuống đủ xa
-                let stretchOffset = max(0, -scrollOffset)
-                if stretchOffset > 60 && !isRefreshing {
-                    isRefreshing = true
-                }
-            }
-            .refreshable {
-                await performRefresh()
-            }
+            .coordinateSpace(name: "Scrollview")
             .navigationBarBackButtonHidden(true)
             .ignoresSafeArea(.all, edges: .top)
         }
     }
 
-    private func performRefresh() async {
-        print("🔄 Refreshing started...")
-        isRefreshing = true
 
-        // ✅ Dùng withCheckedContinuation - không thể cancel
-        await withCheckedContinuation { continuation in
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                print("⏰ Sleep finished")
-                continuation.resume()
+
+    func detecScrollOffset(grometry: GeometryProxy) -> some View {
+        let yOffset = grometry.frame(in: .named("Scrollview")).minY
+
+        DispatchQueue.main.async {
+            self.scrollOffset = yOffset
+
+            // Detect pull down to refresh
+            if yOffset > refreshThreshold && !isRefreshing {
+                self.isRefreshing = true
+                self.performRefresh()
             }
         }
-
-        isRefreshing = false
-        print("✅ Refresh done")
+        return Rectangle().fill(Color.clear)
     }
-}
 
-
-
-// MARK: - ScrollOffset PreferenceKey
-struct ScrollOffsetPreferenceKey: PreferenceKey {
-    static var defaultValue: CGFloat = 0
-
-    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-        value = nextValue()
+    // Perform refresh action
+    private func performRefresh() {
+        // Simulate API call or reload data
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+            // Reset refresh state after completion
+            self.isRefreshing = false
+            print("Data refreshed successfully!")
+        }
     }
 }
 
