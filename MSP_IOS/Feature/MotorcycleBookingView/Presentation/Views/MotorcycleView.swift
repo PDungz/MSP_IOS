@@ -11,10 +11,15 @@ struct MotorcycleBookingView: View {
     let coordinator: HomeCoordinator
     @State private var locationString: String = ""
     @State private var scrollOffset: CGFloat = 0
+    @State private var previousScrollOffset: CGFloat = 0
     @State private var isRefreshing: Bool = false
+    @State private var showHeader: Bool = true
+    @State private var headerHeight: CGFloat = 0
 
     // Threshold để trigger refresh (kéo xuống bao nhiêu pixel)
-    private let refreshThreshold: CGFloat = 80
+    private let refreshThreshold: CGFloat = .spacing64
+    // Threshold để detect scroll direction
+    private let scrollThreshold: CGFloat = .spacing96
 
     var body: some View {
         GeometryReader { geometry in
@@ -24,11 +29,11 @@ struct MotorcycleBookingView: View {
             // Tính toán stretch offset
             let stretchOffset = max(0, -scrollOffset)
 
-            ScrollView {
+            ScrollView (showsIndicators: false){
                 VStack(spacing: .spacing0) {
                     // Header section với stretch effect
                     VStack(spacing: .spacing8) {
-                       HStack {
+                        HStack {
                             ButtonView(
                                 config: ButtonConfig(
                                     style: .text,
@@ -69,7 +74,8 @@ struct MotorcycleBookingView: View {
                             }
                         }
 
-                        // Normal content
+                        // Normal content with animation
+
                         VStack(alignment: .leading, spacing: .spacing0) {
                             Text("Ngày quan trọng của bạn? Đặt xe trước, luôn đúng giờ!")
                                 .padding(.trailing, .padding64 * 2)
@@ -95,16 +101,18 @@ struct MotorcycleBookingView: View {
                                 .foregroundStyle(AppColors.textPrimary)
                             }
                         }
+                        .transition(.move(edge: .top).combined(with: .opacity))
+
 
                         // Spacer để tạo stretch space
-                        if stretchOffset > 0 {
+                        if showHeader && stretchOffset > 0 {
                             Spacer()
-                                .frame(height: stretchOffset)
+                                .frame(height: stretchOffset - .spacing84)
                         }
                     }
                     .padding(.top, headerTopPadding)
                     .padding(.horizontal, .padding16)
-                    .padding(.bottom, .padding42)
+                    .padding(.bottom, showHeader ? .padding42 : .padding12)
                     .frame(maxWidth: .infinity)
                     .background(
                         GeometryReader { headerGeo in
@@ -112,14 +120,20 @@ struct MotorcycleBookingView: View {
                                 .frame(
                                     width: headerGeo.size.width,
                                     height: max(
-                                        headerGeo.size.height + safeAreaTop + stretchOffset, 800
+                                        headerGeo.size.height + safeAreaTop + stretchOffset, 600
                                     )
                                 )
                                 .offset(
                                     y: min(
-                                        -safeAreaTop - stretchOffset, -500
+                                        -safeAreaTop - stretchOffset, -300
                                     )
                                 )
+                                .onAppear {
+                                    // Capture header height
+                                    DispatchQueue.main.async {
+                                        self.headerHeight = headerGeo.size.height
+                                    }
+                                }
                         }
                     )
                     .overlay(alignment: .center) {
@@ -137,7 +151,7 @@ struct MotorcycleBookingView: View {
                                         )
                                         .offset(
                                             y: min(
-                                                -safeAreaTop - stretchOffset, -500
+                                                -safeAreaTop - stretchOffset, -300
                                             )
                                         )
                                 }
@@ -148,10 +162,10 @@ struct MotorcycleBookingView: View {
                         }
                     }
 
-
                     // Content area
                     VStack(spacing: .spacing0) {
                         // TextField with negative offset to overlap the header
+                        !showHeader ? nil :
                         TextFieldView(
                             text: $locationString,
                             placeholder: "Bạn muốn đến đâu?",
@@ -164,8 +178,8 @@ struct MotorcycleBookingView: View {
                                         style: .primary,
                                         fitContent: true,
                                         cornerRadius: .radius16,
-                                        backgroundColor: AppColors.gray300
-                                            .opacity(.opacity3),
+                                        backgroundColor: AppColors.grabGreen
+                                            .opacity(.opacity05),
                                         foregroundColor: .primary,
                                         verticalPadding: .padding6
                                     )
@@ -178,11 +192,22 @@ struct MotorcycleBookingView: View {
                                 print("Bạn muốn đến đâu?")
                             }
                         )
-                        .padding(.horizontal, .padding16)
-                        .offset(y: -.padding32)
+                        .padding(.horizontal, .padding20)
+                        .offset(y: showHeader ? -.padding32 : -.padding12)
+                        .animation(.easeInOut(duration: 0.3), value: showHeader)
 
                         // Main content
                         HistoryLocation()
+                            .padding(.bottom, .padding20)
+
+                        RideWithDiscountView()
+                            .padding(.bottom, .padding20)
+
+                        RideWithDiscountView()
+                            .padding(.bottom, .padding20)
+
+                        RideWithDiscountView()
+                            .padding(.bottom, .padding20)
 
                         Spacer()
                     }
@@ -190,11 +215,65 @@ struct MotorcycleBookingView: View {
                 }
                 .background(GeometryReader{
                     self.detecScrollOffset(grometry: $0)
-                })
+                }
+                )
             }
             .coordinateSpace(name: "Scrollview")
             .navigationBarBackButtonHidden(true)
             .ignoresSafeArea(.all, edges: .top)
+            .safeAreaInset(edge: .top, spacing: 0) {
+               if !showHeader {
+                   HStack {
+                       ButtonView(
+                           config: ButtonConfig(
+                               style: .text,
+                               fitContent: true,
+                               cornerRadius: .radius32,
+                               foregroundColor: .textPrimary,
+                               horizontalPadding: .padding8,
+                               verticalPadding: .padding0
+                           )
+                       ) {
+                           coordinator.backToHome()
+                       } content: {
+                           HStack(spacing: .spacing12) {
+                               Image(systemName: "arrow.left")
+                                   .font(.title3)
+                           }
+                           .foregroundStyle(AppColors.textPrimary)
+                       }
+                       TextFieldView(
+                        text: $locationString,
+                        placeholder: "Bạn muốn đến đâu?",
+                        leftIcon: .asset("pin"),
+                        isInteractive: false,
+                        verticalPadding: .padding12,
+                        iconColor: AppColors.rating1Star,
+                        onTap: {
+                            print("Bạn muốn đến đâu?")
+                        }
+                       )
+
+
+                       ButtonView(
+                           title: "Hẹn",
+                           icon: .system("calendar"),
+                           config: ButtonConfig(
+                               style: .primary,
+                               fitContent: true,
+                               cornerRadius: .radius16,
+                               backgroundColor: AppColors.grabGreen
+                                   .opacity(.opacity05),
+                               foregroundColor: .primary,
+                               verticalPadding: .padding8
+                           )
+                       ) {}
+                   }
+                   .padding(.horizontal, .padding20)
+                   .padding(.vertical, .padding8)
+                   .background(AppColors.bgPrimary)
+                }
+            }
         }
     }
 
@@ -204,6 +283,27 @@ struct MotorcycleBookingView: View {
         let yOffset = grometry.frame(in: .named("Scrollview")).minY
 
         DispatchQueue.main.async {
+            // Detect scroll direction
+            let scrollDelta = yOffset - self.previousScrollOffset
+
+            // Only update if scroll delta exceeds threshold (to avoid jitter)
+            if abs(scrollDelta) > scrollThreshold {
+                // Scrolling up (yOffset becomes more negative)
+                if scrollDelta < 0 && yOffset < -20 {
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        self.showHeader = false
+                    }
+                }
+                // Scrolling down (yOffset becomes less negative or positive)
+                else if scrollDelta > 0 && yOffset > -100 {
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        self.showHeader = true
+                    }
+                }
+
+                self.previousScrollOffset = yOffset
+            }
+
             self.scrollOffset = yOffset
 
             // Detect pull down to refresh
@@ -217,11 +317,8 @@ struct MotorcycleBookingView: View {
 
     // Perform refresh action
     private func performRefresh() {
-        // Simulate API call or reload data
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-            // Reset refresh state after completion
             self.isRefreshing = false
-            print("Data refreshed successfully!")
         }
     }
 }

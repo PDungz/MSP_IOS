@@ -22,7 +22,7 @@ struct HistoryLocation: View {
                                 .frame(width: .spacing24, height: .spacing24)
                                 .padding(.spacing4)
                         )
-                        .padding(.horizontal, .padding10)
+                        .padding(.trailing, .padding10)
                     VStack(alignment: .leading){
                         Text("01 Phạm Hùng")
                             .font(.headline)

@@ -120,6 +120,11 @@ extension CGFloat {
     static let spacing52: CGFloat = Dimension.Spacing.s52
     static let spacing56: CGFloat = Dimension.Spacing.s56
     static let spacing64: CGFloat = Dimension.Spacing.s64
+    static let spacing72: CGFloat = Dimension.Spacing.s72
+    static let spacing80: CGFloat = Dimension.Spacing.s80
+    static let spacing84: CGFloat = Dimension.Spacing.s84
+    static let spacing96: CGFloat = Dimension.Spacing.s96
+    static let spacing128: CGFloat = Dimension.Spacing.s128
 
 
     // MARK: - Border Width

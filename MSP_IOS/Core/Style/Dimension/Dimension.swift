@@ -83,6 +83,11 @@ struct Dimension {
         static let s52: CGFloat = 52
         static let s56: CGFloat = 56
         static let s64: CGFloat = 64
+        static let s72: CGFloat = 72
+        static let s80: CGFloat = 80
+        static let s84: CGFloat = 84
+        static let s96: CGFloat = 96
+        static let s128: CGFloat = 128
     }
 
     // MARK: - Border Width
