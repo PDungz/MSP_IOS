@@ -33,6 +33,7 @@ protocol NetworkManagerProtocol {
 }
 
 /// Protocol for token refresh functionality
-protocol TokenRefreshable {
+/// Note: Must be class-bound for weak references in interceptors
+protocol TokenRefreshable: AnyObject {
     func refreshToken() async throws -> (accessToken: String, refreshToken: String?)
 }
