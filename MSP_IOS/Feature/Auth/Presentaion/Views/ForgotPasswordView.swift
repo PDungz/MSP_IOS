@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct ForgotPasswordView: View {
-    let coordinator: AuthCoordinator
     @State private var email: String = ""
     @State private var isLoading: Bool = false
     @State private var showSuccess: Bool = false
@@ -60,7 +59,7 @@ struct ForgotPasswordView: View {
 
                     // Back to Login
                     Button(action: {
-                        coordinator.backToLogin()
+                        AppNavigation.pop()
                     }) {
                         HStack(spacing: 4) {
                             Image(systemName: "arrow.left")
@@ -77,7 +76,7 @@ struct ForgotPasswordView: View {
         }
         .alert("Success", isPresented: $showSuccess) {
             Button("OK") {
-                coordinator.backToLogin()
+                AppNavigation.navigateToLogin()
             }
         } message: {
             Text("Password reset link has been sent to \(email)")
@@ -96,7 +95,5 @@ struct ForgotPasswordView: View {
 }
 
 #Preview {
-    let appState = AppState()
-    let coordinator = AuthCoordinator(router: appState.router, appState: appState)
-    return ForgotPasswordView(coordinator: coordinator)
+    ForgotPasswordView()
 }

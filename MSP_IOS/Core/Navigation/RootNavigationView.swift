@@ -63,12 +63,10 @@ struct RootNavigationView: View {
             MSP_IOS.LoginView()
 
         case .register:
-            Text("Register Screen")
-                .navigationTitle(route.title)
+            SignUpView()
 
         case .forgotPassword:
-            Text("Forgot Password Screen")
-                .navigationTitle(route.title)
+            ForgotPasswordView()
 
         // MARK: - Main App Routes
         case .home:

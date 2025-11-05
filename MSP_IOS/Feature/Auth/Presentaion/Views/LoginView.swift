@@ -10,15 +10,7 @@ import SwiftUI
 struct LoginView: View {
     @EnvironmentObject var appState: AppState
     @State private var isPasswordVisible = false
-
-    // ✅ Inject AuthService from AppState
-    @StateObject private var authViewModel: AuthViewModel
-
-    init() {
-        // Initialize with a temporary AuthService
-        // Will be updated in onAppear with actual AppState.auth
-        _authViewModel = StateObject(wrappedValue: AuthViewModel(authService: AuthService()))
-    }
+    @State private var authViewModel: AuthViewModel?
 
     var body: some View {
         ZStack {
@@ -53,176 +45,186 @@ struct LoginView: View {
 
                 Spacer()
 
-                VStack {
+                if let viewModel = authViewModel {
                     VStack {
-                        TextFieldView(
-                            text: $authViewModel.username,
-                            placeholder: NSLocalizedString("login_username", comment: "Username placeholder"),
-                            leftIcon: .system("person.fill"),
-                            keyboardType: .emailAddress
-                        )
-                        .padding(.bottom, .padding12)
-                        .disabled(authViewModel.isLoading)
-
-                        TextFieldView(
-                            text: $authViewModel.password,
-                            placeholder: NSLocalizedString("login_password", comment: "Password placeholder"),
-                            leftIcon: .system("lock.fill"),
-                            rightIcon: .icon(.system(isPasswordVisible ? "eye.slash.fill" : "eye.fill")),
-                            showClearButton: false,
-                            isSecure: !isPasswordVisible,
-                            onRightIconTapped: {
-                                isPasswordVisible.toggle()
-                            }
-                        )
-                        .padding(.bottom, .padding12)
-                        .disabled(authViewModel.isLoading)
-
-                        // ✅ Error Message
-                        if let errorMessage = authViewModel.errorMessage {
-                            HStack {
-                                Image(systemName: "exclamationmark.triangle.fill")
-                                    .foregroundColor(.red)
-                                Text(errorMessage)
-                                    .font(.caption)
-                                    .foregroundColor(.red)
-                            }
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(.vertical, .padding8)
-                            .padding(.horizontal, .padding12)
-                            .background(Color.red.opacity(0.1))
-                            .cornerRadius(8)
-                            .padding(.bottom, .padding8)
-                        }
-
-                        // ✅ Success Message
-                        if let successMessage = authViewModel.successMessage {
-                            HStack {
-                                Image(systemName: "checkmark.circle.fill")
-                                    .foregroundColor(.green)
-                                Text(successMessage)
-                                    .font(.caption)
-                                    .foregroundColor(.green)
-                            }
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(.vertical, .padding8)
-                            .padding(.horizontal, .padding12)
-                            .background(Color.green.opacity(0.1))
-                            .cornerRadius(8)
-                            .padding(.bottom, .padding8)
-                        }
-
-                        Button(action: {
-                            AppNavigation.navigateToForgotPassword()
-                        }) {
-                            Text(NSLocalizedString("login_forgot_password", comment: "Forgot password button"))
-                                .font(.subheadline)
-                                .foregroundColor(AppColors.textSecondary)
-                                .underline()
-                                .frame(maxWidth: .infinity, alignment: .trailing)
-                        }
-                        .padding(.bottom, .padding8)
-
-                        // ✅ Login Button
-                        ButtonView(
-                            title: authViewModel.isLoading ?
-                                NSLocalizedString("login_loading_message", comment: "Loading message") :
-                                NSLocalizedString("login", comment: "Login button"),
-                            shadowColor: AppColors.grabGreen.opacity(.opacity3),
-                            action: {
-                                Task {
-                                    // ✅ Call login - AppState will auto sync from AuthService
-                                    let success = await authViewModel.login()
-
-                                    if success {
-                                        // ✅ Navigation handled automatically by AppState observer
-                                        AppLogger.s("Login successful, waiting for auto navigation...")
-                                    }
-                                }
-                            }
-                        )
-                        .disabled(authViewModel.isLoading)
-                        .opacity(authViewModel.isLoading ? 0.6 : 1.0)
-                        .padding(.bottom, .padding8)
-
-                        HStack {
-                            Text(
-                                NSLocalizedString(
-                                    "login_need_to_create_an_account",
-                                    comment: ""
-                                )
+                        VStack {
+                            TextFieldView(
+                                text: Binding(
+                                    get: { viewModel.username },
+                                    set: { viewModel.username = $0 }
+                                ),
+                                placeholder: NSLocalizedString("login_username", comment: "Username placeholder"),
+                                leftIcon: .system("person.fill"),
+                                keyboardType: .emailAddress
                             )
-                            .font(.subheadline)
-                            .fontWeight(.bold)
+                            .padding(.bottom, .padding12)
+                            .disabled(viewModel.isLoading)
+
+                            TextFieldView(
+                                text: Binding(
+                                    get: { viewModel.password },
+                                    set: { viewModel.password = $0 }
+                                ),
+                                placeholder: NSLocalizedString("login_password", comment: "Password placeholder"),
+                                leftIcon: .system("lock.fill"),
+                                rightIcon: .icon(.system(isPasswordVisible ? "eye.slash.fill" : "eye.fill")),
+                                showClearButton: false,
+                                isSecure: !isPasswordVisible,
+                                onRightIconTapped: {
+                                    isPasswordVisible.toggle()
+                                }
+                            )
+                            .padding(.bottom, .padding12)
+                            .disabled(viewModel.isLoading)
+
+                            // ✅ Error Message
+                            if let errorMessage = viewModel.errorMessage {
+                                HStack {
+                                    Image(systemName: "exclamationmark.triangle.fill")
+                                        .foregroundColor(.red)
+                                    Text(errorMessage)
+                                        .font(.caption)
+                                        .foregroundColor(.red)
+                                }
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(.vertical, .padding8)
+                                .padding(.horizontal, .padding12)
+                                .background(Color.red.opacity(0.1))
+                                .cornerRadius(8)
+                                .padding(.bottom, .padding8)
+                            }
+
+                            // ✅ Success Message
+                            if let successMessage = viewModel.successMessage {
+                                HStack {
+                                    Image(systemName: "checkmark.circle.fill")
+                                        .foregroundColor(.green)
+                                    Text(successMessage)
+                                        .font(.caption)
+                                        .foregroundColor(.green)
+                                }
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(.vertical, .padding8)
+                                .padding(.horizontal, .padding12)
+                                .background(Color.green.opacity(0.1))
+                                .cornerRadius(8)
+                                .padding(.bottom, .padding8)
+                            }
 
                             Button(action: {
-                                AppNavigation.navigateToRegister()
+                                AppNavigation.navigateToForgotPassword()
                             }) {
-                                Text(NSLocalizedString("login_sign_up", comment: ""))
+                                Text(NSLocalizedString("login_forgot_password", comment: "Forgot password button"))
                                     .font(.subheadline)
                                     .foregroundColor(AppColors.textSecondary)
                                     .underline()
+                                    .frame(maxWidth: .infinity, alignment: .trailing)
                             }
+                            .padding(.bottom, .padding8)
+
+                            // ✅ Login Button
+                            ButtonView(
+                                title: viewModel.isLoading ?
+                                    NSLocalizedString("login_loading_message", comment: "Loading message") :
+                                    NSLocalizedString("login", comment: "Login button"),
+                                shadowColor: AppColors.grabGreen.opacity(.opacity3),
+                                action: {
+                                    Task {
+                                        // ✅ Call login - AppState will auto sync from AuthService
+                                        let success = await viewModel.login()
+
+                                        if success {
+                                            // ✅ Navigation handled automatically by AppState observer
+                                            AppLogger.s("Login successful, waiting for auto navigation...")
+                                        }
+                                    }
+                                }
+                            )
+                            .disabled(viewModel.isLoading)
+                            .opacity(viewModel.isLoading ? 0.6 : 1.0)
+                            .padding(.bottom, .padding8)
+
+                            HStack {
+                                Text(
+                                    NSLocalizedString(
+                                        "login_need_to_create_an_account",
+                                        comment: ""
+                                    )
+                                )
+                                .font(.subheadline)
+                                .fontWeight(.bold)
+
+                                Button(action: {
+                                    AppNavigation.navigateToRegister()
+                                }) {
+                                    Text(NSLocalizedString("login_sign_up", comment: ""))
+                                        .font(.subheadline)
+                                        .foregroundColor(AppColors.textSecondary)
+                                        .underline()
+                                }
+                            }
+
+                            ButtonView(
+                                title: NSLocalizedString("login_sign_in_using_apple", comment: "Sign in with Apple"),
+                                icon: .system("apple.logo"),
+                                style: .outline,
+                                action: {}
+                            )
+                            .padding(.bottom, .padding8)
+                            .disabled(viewModel.isLoading)
+
+                            ButtonView(
+                                title: NSLocalizedString("login_sign_in_using_google", comment: "Sign in with Google"),
+                                icon: .asset("google"),
+                                style: .outline,
+                                action: {}
+                            )
+                            .disabled(viewModel.isLoading)
                         }
-
-                        ButtonView(
-                            title: NSLocalizedString("login_sign_in_using_apple", comment: "Sign in with Apple"),
-                            icon: .system("apple.logo"),
-                            style: .outline,
-                            action: {}
-                        )
-                        .padding(.bottom, .padding8)
-                        .disabled(authViewModel.isLoading)
-
-                        ButtonView(
-                            title: NSLocalizedString("login_sign_in_using_google", comment: "Sign in with Google"),
-                            icon: .asset("google"),
-                            style: .outline,
-                            action: {}
-                        )
-                        .disabled(authViewModel.isLoading)
+                        Spacer()
                     }
-                    Spacer()
+                    .padding(.top, .padding20)
+                    .padding(.horizontal, .padding32)
+                    .padding(.vertical, .padding32)
+                    .frame(maxWidth: .infinity, alignment: .bottom)
+                    .background(
+                        RoundedRectangle(cornerRadius: .radius24)
+                            .fill(AppColors.bgPrimary)
+                            .shadow(
+                                color: AppColors.black.opacity(.opacity4),
+                                radius: 20,
+                                x: 0,
+                                y: 8
+                            )
+                    )
+
+                    // ✅ Loading Overlay
+                    if viewModel.isLoading {
+                        Color.black.opacity(0.3)
+                            .edgesIgnoringSafeArea(.all)
+
+                        VStack(spacing: 16) {
+                            ProgressView()
+                                .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                .scaleEffect(1.5)
+
+                            Text(NSLocalizedString("login_loading_message", comment: "Loading message"))
+                                .font(.headline)
+                                .foregroundColor(.white)
+                        }
+                    }
                 }
-                .padding(.top, .padding20)
-                .padding(.horizontal, .padding32)
-                .padding(.vertical, .padding32)
-                .frame(maxWidth: .infinity, alignment: .bottom)
-                .background(
-                    RoundedRectangle(cornerRadius: .radius24)
-                        .fill(AppColors.bgPrimary)
-                        .shadow(
-                            color: AppColors.black.opacity(.opacity4),
-                            radius: 20,
-                            x: 0,
-                            y: 8
-                        )
-                )
             }
             .ignoresSafeArea(edges: .bottom)
-
-            // ✅ Loading Overlay
-            if authViewModel.isLoading {
-                Color.black.opacity(0.3)
-                    .edgesIgnoringSafeArea(.all)
-
-                VStack(spacing: 16) {
-                    ProgressView()
-                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                        .scaleEffect(1.5)
-
-                    Text(NSLocalizedString("login_loading_message", comment: "Loading message"))
-                        .font(.headline)
-                        .foregroundColor(.white)
-                }
-            }
         }
         .onAppear {
-            // ✅ Update authViewModel with actual AppState.auth
-            authViewModel.updateAuthService(appState.auth)
+            // ✅ Initialize authViewModel with AppState.auth
+            if authViewModel == nil {
+                authViewModel = AuthViewModel(authService: appState.auth)
+            }
 
             // ✅ Check auth on appear (will auto navigate if already logged in)
-            authViewModel.checkAuthStatus()
+            authViewModel?.checkAuthStatus()
         }
     }
 }
