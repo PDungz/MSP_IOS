@@ -9,23 +9,21 @@ import SwiftUI
 
 struct SignUpView: View {
 
-    let coordinator: AuthCoordinator
-
     var body: some View {
         ZStack {
             AppColors.bgPrimary.edgesIgnoringSafeArea(.all)
             // Header
             VStack {
                 VStack(spacing: .spacing8) {
-                    Image(systemName: "lock.shield")
+                    Image(systemName: "person.badge.plus")
                         .font(.system(size: 60))
                         .foregroundColor(AppColors.grabGreen)
-                    
-                    Text("Forgot Password?")
+
+                    Text("Create Account")
                         .font(.title)
                         .fontWeight(.bold)
-                    
-                    Text("Enter your email to receive reset instructions")
+
+                    Text("Sign up to get started")
                         .font(.subheadline)
                         .foregroundColor(AppColors.textSecondary)
                         .multilineTextAlignment(.center)
@@ -33,8 +31,20 @@ struct SignUpView: View {
                 }
                 .padding(.top, .padding64)
 
-
                 Spacer()
+
+                // Back to Login button
+                Button(action: {
+                    AppNavigation.pop()
+                }) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "arrow.left")
+                        Text("Back to Login")
+                    }
+                    .font(.subheadline)
+                    .foregroundColor(AppColors.grabGreen)
+                }
+                .padding(.bottom, .padding32)
             }
 
         }
@@ -43,7 +53,5 @@ struct SignUpView: View {
 }
 
 #Preview {
-    let appState = AppState()
-    let coordinator = AuthCoordinator(router: appState.router, appState: appState)
-    SignUpView(coordinator: coordinator)
+    SignUpView()
 }
