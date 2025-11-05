@@ -13,6 +13,24 @@ struct LoginRequest: Codable {
     let password: String
 }
 
+// MARK: - Refresh Token Request
+struct RefreshTokenRequest: APIEndpoint {
+    let refreshToken: String
+
+    var path: String {
+        return APIConfig.Endpoint.refreshToken.path
+    }
+
+    var method: HTTPMethod {
+        return .post
+    }
+
+    var body: Data? {
+        let payload = ["refresh_token": refreshToken]
+        return try? JSONSerialization.data(withJSONObject: payload)
+    }
+}
+
 // MARK: - Auth Data (từ response)
 struct AuthData: Codable {
     let accessToken: String
