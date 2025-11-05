@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct LoginView: View {
-    @EnvironmentObject var appState: AppState
+    @EnvironmentObject private var appState: AppState
     @State private var isPasswordVisible = false
     @State private var authViewModel: AuthViewModel?
 
@@ -219,12 +219,11 @@ struct LoginView: View {
         }
         .onAppear {
             // ✅ Initialize authViewModel with AppState.auth
+            // AppState is now guaranteed to be available from environment
             if authViewModel == nil {
                 authViewModel = AuthViewModel(authService: appState.auth)
+                authViewModel?.checkAuthStatus()
             }
-
-            // ✅ Check auth on appear (will auto navigate if already logged in)
-            authViewModel?.checkAuthStatus()
         }
     }
 }
