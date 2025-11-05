@@ -92,18 +92,48 @@ class DefaultRequestInterceptor: RequestInterceptor {
 }
 
 /// Auth interceptor - automatically adds Bearer token
+///
+/// # Overview
+/// Tự động thêm Bearer token vào Authorization header cho các requests cần authentication.
+/// SKIP các endpoints không cần auth như: login, register, refresh token.
+///
+/// # Excluded Endpoints
+/// - `/api/auth/login` - Login không cần token
+/// - `/api/auth/register` - Register không cần token
+/// - `/api/auth/refresh` - Refresh dùng refresh_token trong body, không dùng Bearer token
 class AuthInterceptor: RequestInterceptor {
     private let secureStorage = SecureStorage.shared
+
+    /// Endpoints không cần Authorization header
+    private let excludedPaths: Set<String> = [
+        "/api/auth/login",
+        "/api/auth/register",
+        "/api/auth/refresh"
+    ]
 
     func adapt(_ urlRequest: URLRequest) async throws -> URLRequest {
         var request = urlRequest
 
+        // Check if endpoint needs authentication
+        guard let url = request.url,
+              !shouldSkipAuth(for: url) else {
+            AppLogger.i("Skipping auth token for: \(request.url?.path ?? "unknown")")
+            return request
+        }
+
         // Add Bearer token if available
         if let token = secureStorage.loadString(forKey: StorageKeys.Auth.jwtToken) {
             request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+            AppLogger.i("Added Bearer token to request")
         }
 
         return request
+    }
+
+    /// Check if request should skip authentication
+    private func shouldSkipAuth(for url: URL) -> Bool {
+        let path = url.path
+        return excludedPaths.contains(path)
     }
 
     func retry(
