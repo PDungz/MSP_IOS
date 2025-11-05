@@ -59,7 +59,8 @@ struct RootNavigationView: View {
         switch route {
         // MARK: - Auth Routes
         case .login:
-            LoginView()
+            // Use actual LoginView from Auth feature
+            MSP_IOS.LoginView()
 
         case .register:
             Text("Register Screen")
@@ -71,7 +72,8 @@ struct RootNavigationView: View {
 
         // MARK: - Main App Routes
         case .home:
-            HomeView()
+            // Use MainTabView which contains HomeView
+            MainTabView()
 
         case .profile:
             Text("Profile Screen")
@@ -95,6 +97,7 @@ struct RootNavigationView: View {
 
         // MARK: - Motorcycle Booking Routes
         case .motorcycleBooking:
+            // Use actual MotorcycleBookingView from MotorcycleBookingView feature
             MotorcycleBookingView()
 
         case .motorcycleDetail(let motorcycleId):
@@ -146,9 +149,9 @@ struct RootNavigationView: View {
     }
 }
 
-// MARK: - Placeholder Views (Replace với actual views)
+// MARK: - Placeholder Views (Replace with actual views when available)
 
-/// User Detail View
+/// User Detail View (Placeholder - replace when actual view is ready)
 private struct UserDetailView: View {
     let userId: String
 
@@ -169,70 +172,5 @@ private struct UserDetailView: View {
             }
         }
         .navigationTitle("User Detail")
-    }
-}
-
-/// Login View (Replace với actual LoginView từ Auth feature)
-private struct LoginView: View {
-    var body: some View {
-        VStack(spacing: 20) {
-            Text("Login Screen")
-                .font(.title)
-
-            Button("Go to Register") {
-                AppNavigation.navigateToRegister()
-            }
-
-            Button("Go to Home (Mock Login)") {
-                AppNavigation.navigateToHome()
-            }
-        }
-        .navigationTitle("Đăng nhập")
-    }
-}
-
-/// Home View (Replace với actual HomeView từ Home feature)
-private struct HomeView: View {
-    var body: some View {
-        VStack(spacing: 20) {
-            Text("Home Screen")
-                .font(.title)
-
-            Button("Go to Profile") {
-                AppNavigation.navigateToProfile()
-            }
-
-            Button("Go to Motorcycle Booking") {
-                AppNavigation.navigateToMotorcycleBooking()
-            }
-
-            Button("Go to User List") {
-                AppNavigation.navigateToUserList()
-            }
-
-            Button("Logout") {
-                AppNavigation.navigateToLogin()
-            }
-        }
-        .navigationTitle("Trang chủ")
-    }
-}
-
-/// Motorcycle Booking View (Replace với actual view)
-private struct MotorcycleBookingView: View {
-    var body: some View {
-        VStack(spacing: 20) {
-            Text("Motorcycle Booking")
-                .font(.title)
-
-            Button("View Motorcycle Detail") {
-                AppNavigation.navigateToMotorcycleDetail(motorcycleId: "123")
-            }
-
-            Button("Back") {
-                AppNavigation.pop()
-            }
-        }
-        .navigationTitle("Đặt xe")
     }
 }

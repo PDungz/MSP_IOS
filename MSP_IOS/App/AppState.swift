@@ -3,41 +3,44 @@
 //  MSP_IOS
 //
 //  Created by Phùng Văn Dũng on 17/10/25.
+//  Simplified to only handle authentication state
 //
 
 import SwiftUI
 import Combine
 
+/// Simplified AppState - only manages authentication
+///
+/// Navigation is now handled by centralized AppNavigation system
 final class AppState: ObservableObject {
 
     @Published var isAuthenticated: Bool = false
-    @Published var router: Router
 
     // ✅ AuthService as single source of truth
     private let authService = AuthService()
     private var cancellables = Set<AnyCancellable>()
 
-    lazy var authCoordinator: AuthCoordinator = {
-        AuthCoordinator(router: router, appState: self)
-    }()
-
-    lazy var homeCoordinator: HomeCoordinator = {
-        HomeCoordinator(router: router, appState: self)
-    }()
-
     init() {
-        self.router = Router()
         setupAuthObserver()
         checkInitialAuthStatus()
     }
 
-    // ✅ Observe AuthService changes
+    // MARK: - Auth Observer
+
+    /// Observe AuthService changes and update UI accordingly
     private func setupAuthObserver() {
         authService.$isAuthenticated
             .receive(on: DispatchQueue.main)
             .sink { [weak self] isAuthenticated in
                 self?.isAuthenticated = isAuthenticated
-                AppLogger.i("Auth state changed: \(isAuthenticated)")
+                AppLogger.i("🔐 Auth state changed: \(isAuthenticated)")
+
+                // ✅ Navigate based on auth state
+                if isAuthenticated {
+                    AppNavigation.navigateToHome()
+                } else {
+                    AppNavigation.navigateToLogin()
+                }
             }
             .store(in: &cancellables)
     }
@@ -47,21 +50,16 @@ final class AppState: ObservableObject {
         authService.checkAuthStatus()
     }
 
-    // ✅ Login method (delegate to AuthService)
-    func login() {
-        // This will be called from LoginView after successful API login
-        // No need to set isAuthenticated here - it's synced from AuthService
-        AppLogger.s("Login triggered from AppState")
-    }
+    // MARK: - Public Methods
 
-    // ✅ Logout method
+    /// Logout method
     func logout() {
         authService.logout()
-        router.clear()
-        AppLogger.s("Logout triggered from AppState")
+        AppNavigation.navigateToLogin()
+        AppLogger.s("🔓 Logout triggered from AppState")
     }
 
-    // ✅ Expose AuthService for ViewModels
+    /// Expose AuthService for ViewModels
     var auth: AuthService {
         return authService
     }

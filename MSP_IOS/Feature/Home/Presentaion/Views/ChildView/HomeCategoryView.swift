@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct HomeCategoryView: View {
-    let coordinator: HomeCoordinator
     let categories = Category.allCases
 
     let rows = [
@@ -30,7 +29,7 @@ struct HomeCategoryView: View {
             LazyHGrid(rows: rows, spacing: gridSpacing) {
                 ForEach(categories, id: \.self) { category in
                     Button {
-                        coordinator.navigateToCategory(category)
+                        navigateToCategory(category)
                     } label: {
                         CategoryItemView(category: category)
                             .frame(width: itemWidth)
@@ -42,6 +41,36 @@ struct HomeCategoryView: View {
             .padding(.vertical, .padding4)
         }
         .frame(height: 200)
+    }
+
+    // MARK: - Navigation Helper
+
+    /// Navigate to appropriate screen based on category
+    private func navigateToCategory(_ category: Category) {
+        switch category {
+        case .motorcycle:
+            AppNavigation.navigateToMotorcycleBooking()
+        case .car:
+            // TODO: Add car booking route
+            AppLogger.i("🚗 Navigate to car booking")
+        case .food:
+            AppNavigation.navigateToFoodList()
+        case .shipping:
+            // TODO: Add shipping route
+            AppLogger.i("📦 Navigate to shipping")
+        case .shopping:
+            // TODO: Add shopping route
+            AppLogger.i("🛒 Navigate to shopping")
+        case .voucher:
+            // TODO: Add voucher route
+            AppLogger.i("🎫 Navigate to voucher")
+        case .bookDriver:
+            // TODO: Add book driver route
+            AppLogger.i("📅 Navigate to book driver")
+        case .all:
+            // TODO: Add all categories route
+            AppLogger.i("📋 Navigate to all categories")
+        }
     }
 }
 
@@ -71,9 +100,5 @@ struct CategoryItemView: View {
 }
 
 #Preview {
-    let router = Router()
-    let appState = AppState()
-    let coordinator = HomeCoordinator(router: router, appState: appState)
-
-    return HomeCategoryView(coordinator: coordinator)
+    return HomeCategoryView()
 }
