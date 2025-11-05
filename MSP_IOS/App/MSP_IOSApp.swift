@@ -23,6 +23,7 @@ struct MSP_IOSApp: App {
                     RootNavigationView(initialRoute: .login)
                 }
             }
+            .environmentObject(appState) // ✅ Inject AppState into environment
             .preferredColorScheme(.light) // Force Light Mode - ignore system Dark Mode
             .onAppear {
                 setupApp()
