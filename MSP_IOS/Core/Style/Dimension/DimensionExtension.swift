@@ -80,6 +80,7 @@ extension CGFloat {
     static let padding16: CGFloat = Dimension.Padding.p16
     static let padding20: CGFloat = Dimension.Padding.p20
     static let padding24: CGFloat = Dimension.Padding.p24
+    static let padding28: CGFloat = Dimension.Padding.p28
     static let padding32: CGFloat = Dimension.Padding.p32
     static let padding36: CGFloat = Dimension.Padding.p36
     static let padding40: CGFloat = Dimension.Padding.p40
@@ -130,6 +131,7 @@ extension CGFloat {
     // MARK: - Border Width
     static let borderWidthDefault: CGFloat = Dimension.BorderWidth.default
     static let borderWidth0: CGFloat = Dimension.BorderWidth.bw0
+    static let borderWidth05: CGFloat = Dimension.BorderWidth.bw05
     static let borderWidth1: CGFloat = Dimension.BorderWidth.bw1
     static let borderWidth2: CGFloat = Dimension.BorderWidth.bw2
     static let borderWidth3: CGFloat = Dimension.BorderWidth.bw3
@@ -137,6 +139,8 @@ extension CGFloat {
 
     // MARK: - Icon Sizes
     static let iconSizeDefault: CGFloat = Dimension.IconSize.default
+    static let iconSize8: CGFloat = Dimension.IconSize.i8
+    static let iconSize12: CGFloat = Dimension.IconSize.i12
     static let iconSize16: CGFloat = Dimension.IconSize.i16
     static let iconSize20: CGFloat = Dimension.IconSize.i20
     static let iconSize24: CGFloat = Dimension.IconSize.i24

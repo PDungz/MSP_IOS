@@ -119,13 +119,6 @@ struct VoucherView: View {
     }
 }
 
-struct BookDriverView: View {
-    var body: some View {
-        Text("Đặt xe trước")
-            .navigationTitle("Đặt xe trước")
-    }
-}
-
 struct AllCategoriesView: View {
     var body: some View {
         AllCategoriesContentView()

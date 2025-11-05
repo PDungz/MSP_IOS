@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct CategoryView: View {
+struct HomeCategoryView: View {
     let coordinator: HomeCoordinator
     let categories = Category.allCases
 
@@ -65,9 +65,8 @@ struct CategoryItemView: View {
         .frame(maxWidth: .infinity)
         .padding(.horizontal, .padding4)
         .padding(.vertical, .padding12)
-        .background(AppColors.grabGreenPastel)
+        .background(AppColors.grabGreen.opacity(.opacity05))
         .cornerRadius(.radius12)
-        .shadow(color: AppColors.shadowSM, radius: .radius4, x: 0, y: 2)
     }
 }
 
@@ -76,5 +75,5 @@ struct CategoryItemView: View {
     let appState = AppState()
     let coordinator = HomeCoordinator(router: router, appState: appState)
 
-    return CategoryView(coordinator: coordinator)
+    return HomeCategoryView(coordinator: coordinator)
 }

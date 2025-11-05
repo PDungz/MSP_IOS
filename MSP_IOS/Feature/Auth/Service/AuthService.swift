@@ -14,20 +14,6 @@ class AuthService: BaseService {
     @Published var isAuthenticated = false
     @Published var currentUser: AuthData?
 
-    // Mock mode for testing without server
-    var isMockMode = true // Set to false to use real API
-
-    // Mock data for testing
-    private let mockAuthData = AuthData(
-        accessToken: "mock_access_token_12345",
-        refreshToken: "mock_refresh_token_67890",
-        tokenType: "Bearer",
-        expiresIn: 3600,
-        username: "user",
-        email: "test@example.com",
-        phoneNumber: "0123456789"
-    )
-
     override init() {
         super.init()
         checkAuthStatus()
@@ -39,31 +25,6 @@ class AuthService: BaseService {
         }
 
         AppLogger.i("Login attempt: \(username)")
-
-        // Mock mode: return fake data without calling API
-        if isMockMode {
-            AppLogger.i("🧪 Mock mode enabled - simulating login")
-
-            // Simulate network delay
-            try await Task.sleep(nanoseconds: 1_000_000_000) // 1 second
-
-            // Mock validation: accept any non-empty credentials
-            // You can add custom validation here if needed
-            // Example: if username == "admin" && password == "admin" { ... }
-
-            let authData = mockAuthData
-
-            networkManager.setTokens(jwt: authData.accessToken, refresh: authData.refreshToken)
-            saveUserData(authData)
-
-            await MainActor.run {
-                isAuthenticated = true
-                currentUser = authData
-            }
-
-            AppLogger.s("🧪 Mock login successful: \(authData.username)")
-            return authData
-        }
 
         // Real API mode
         let credentials = LoginRequest(username: username, password: password)

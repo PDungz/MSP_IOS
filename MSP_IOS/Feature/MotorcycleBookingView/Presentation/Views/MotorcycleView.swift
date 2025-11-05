@@ -19,7 +19,7 @@ struct MotorcycleBookingView: View {
     // Threshold để trigger refresh (kéo xuống bao nhiêu pixel)
     private let refreshThreshold: CGFloat = .spacing64
     // Threshold để detect scroll direction
-    private let scrollThreshold: CGFloat = .spacing96
+    private let scrollThreshold: CGFloat = .spacing128
 
     var body: some View {
         GeometryReader { geometry in
@@ -102,13 +102,6 @@ struct MotorcycleBookingView: View {
                             }
                         }
                         .transition(.move(edge: .top).combined(with: .opacity))
-
-
-                        // Spacer để tạo stretch space
-                        if showHeader && stretchOffset > 0 {
-                            Spacer()
-                                .frame(height: stretchOffset - .spacing84)
-                        }
                     }
                     .padding(.top, headerTopPadding)
                     .padding(.horizontal, .padding16)
@@ -165,7 +158,7 @@ struct MotorcycleBookingView: View {
                     // Content area
                     VStack(spacing: .spacing0) {
                         // TextField with negative offset to overlap the header
-                        !showHeader ? nil :
+
                         TextFieldView(
                             text: $locationString,
                             placeholder: "Bạn muốn đến đâu?",
@@ -289,14 +282,14 @@ struct MotorcycleBookingView: View {
             // Only update if scroll delta exceeds threshold (to avoid jitter)
             if abs(scrollDelta) > scrollThreshold {
                 // Scrolling up (yOffset becomes more negative)
-                if scrollDelta < 0 && yOffset < -20 {
-                    withAnimation(.easeInOut(duration: 0.3)) {
+                if scrollDelta < 0 && yOffset < -.spacing8 {
+                    withAnimation(.easeInOut(duration: 0.1)) {
                         self.showHeader = false
                     }
                 }
                 // Scrolling down (yOffset becomes less negative or positive)
-                else if scrollDelta > 0 && yOffset > -100 {
-                    withAnimation(.easeInOut(duration: 0.3)) {
+                else if scrollDelta > 0 && yOffset > -.spacing128 {
+                    withAnimation(.easeInOut(duration: 0.1)) {
                         self.showHeader = true
                     }
                 }

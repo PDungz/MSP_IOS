@@ -38,6 +38,7 @@ struct Dimension {
         static let p16: CGFloat = 16
         static let p20: CGFloat = 20
         static let p24: CGFloat = 24
+        static let p28: CGFloat = 28
         static let p32: CGFloat = 32
         static let p36: CGFloat = 36
         static let p40: CGFloat = 40
@@ -94,6 +95,7 @@ struct Dimension {
     struct BorderWidth {
         static let `default`: CGFloat = 1
         static let bw0: CGFloat = 0
+        static let bw05: CGFloat = 0.5
         static let bw1: CGFloat = 1
         static let bw2: CGFloat = 2
         static let bw3: CGFloat = 3
@@ -103,6 +105,8 @@ struct Dimension {
     // MARK: - Icon Size
     struct IconSize {
         static let `default`: CGFloat = 24
+        static let i8: CGFloat = 8
+        static let i12: CGFloat = 12
         static let i16: CGFloat = 16
         static let i20: CGFloat = 20
         static let i24: CGFloat = 24

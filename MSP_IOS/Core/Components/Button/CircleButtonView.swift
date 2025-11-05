@@ -243,44 +243,173 @@ extension CircleButtonView {
 
 // MARK: - Preview
 
-#Preview {
+#Preview("Basic Examples") {
     ScrollView {
         VStack(spacing: 24) {
-            Text("Basic Sizes")
+            // Sizes
+            Text("Sizes")
                 .font(.headline)
-
             HStack(spacing: 16) {
-                CircleButtonView(
-                    icon: .system("plus"),
-                    size: 32
-                ) {
-                    print("Small")
-                }
-
-                CircleButtonView(
-                    icon: .system("heart.fill"),
-                    size: 48
-                ) {
-                    print("Medium")
-                }
-
-                CircleButtonView(
-                    icon: .system("star.fill"),
-                    size: 56
-                ) {
-                    print("Large")
-                }
-
-                CircleButtonView(
-                    icon: .system("crown.fill"),
-                    size: 64
-                ) {
-                    print("Extra Large")
-                }
+                CircleButtonView(icon: .system("plus"), size: 32) { }
+                CircleButtonView(icon: .system("heart.fill"), size: 48) { }
+                CircleButtonView(icon: .system("star.fill"), size: 56) { }
             }
 
             Divider()
+
+            // Colors
+            Text("Colors")
+                .font(.headline)
+            HStack(spacing: 16) {
+                CircleButtonView(icon: .system("cart.fill")) { }
+                CircleButtonView(
+                    icon: .system("heart.fill"),
+                    backgroundColor: AppColors.grabCar
+                ) { }
+                CircleButtonView(
+                    icon: .system("bolt.fill"),
+                    backgroundColor: AppColors.grabPay
+                ) { }
+            }
+
+            Divider()
+
+            // States
+            Text("States")
+                .font(.headline)
+            HStack(spacing: 16) {
+                CircleButtonView(icon: .system("play.fill"), isEnabled: true) { }
+                CircleButtonView(icon: .system("pause.fill"), isEnabled: false) { }
+                CircleButtonView(icon: .system("arrow.clockwise"), isLoading: true) { }
+            }
+
+            Divider()
+
+            // Borders
+            Text("Borders")
+                .font(.headline)
+            HStack(spacing: 16) {
+                CircleButtonView(
+                    icon: .system("plus"),
+                    backgroundColor: .white,
+                    foregroundColor: AppColors.grabGreen,
+                    borderColor: AppColors.grabGreen,
+                    borderWidth: 2
+                ) { }
+
+                CircleButtonView(
+                    icon: .system("xmark"),
+                    backgroundColor: .clear,
+                    foregroundColor: AppColors.grabBike,
+                    borderColor: AppColors.borderDark,
+                    borderWidth: 2,
+                    withShadow: false
+                ) { }
+            }
+
+            Divider()
+
+            // Text content
+            Text("Text Content")
+                .font(.headline)
+            HStack(spacing: 16) {
+                CircleButtonView(text: "A", size: 48) { }
+                CircleButtonView(
+                    text: "5",
+                    backgroundColor: AppColors.grabCar,
+                    size: 48
+                ) { }
+            }
+
+            Divider()
+
+            // Custom content
+            Text("Custom Content")
+                .font(.headline)
+            HStack(spacing: 16) {
+                CircleButtonView(size: 56) { } content: {
+                    VStack(spacing: 2) {
+                        Image(systemName: "arrow.up").font(.caption)
+                        Image(systemName: "arrow.down").font(.caption)
+                    }
+                }
+
+                CircleButtonView(
+                    backgroundColor: AppColors.grabCar,
+                    size: 56
+                ) { } content: {
+                    ZStack {
+                        Image(systemName: "bell.fill").font(.title3)
+                        Text("3")
+                            .font(.caption2)
+                            .fontWeight(.bold)
+                            .foregroundStyle(.white)
+                            .padding(4)
+                            .background(Circle().fill(AppColors.error))
+                            .offset(x: 8, y: -8)
+                    }
+                }
+            }
         }
+        .padding()
     }
 }
 
+#Preview("Interactive Demo") {
+    struct InteractiveDemo: View {
+        @State private var isLiked = false
+        @State private var count = 0
+
+        var body: some View {
+            VStack(spacing: 32) {
+                // Like button
+                VStack(spacing: 12) {
+                    CircleButtonView(
+                        icon: .system(isLiked ? "heart.fill" : "heart"),
+                        backgroundColor: isLiked ? AppColors.grabFood : AppColors.grabGreen
+                    ) {
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+                            isLiked.toggle()
+                        }
+                    }
+                    Text(isLiked ? "Liked!" : "Tap to like")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+
+                Divider()
+
+                // Counter
+                VStack(spacing: 12) {
+                    HStack(spacing: 16) {
+                        CircleButtonView(
+                            icon: .system("minus"),
+                            backgroundColor: AppColors.grabCar,
+                            isEnabled: count > 0
+                        ) {
+                            count = max(0, count - 1)
+                        }
+
+                        Text("\(count)")
+                            .font(.title)
+                            .fontWeight(.bold)
+                            .frame(width: 60)
+
+                        CircleButtonView(
+                            icon: .system("plus"),
+                            backgroundColor: AppColors.grabGreen
+                        ) {
+                            count += 1
+                        }
+                    }
+                    Text("Counter: \(count)")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .padding()
+        }
+    }
+
+    return InteractiveDemo()
+}
