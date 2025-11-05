@@ -126,7 +126,7 @@ struct AllCategoriesView: View {
 }
 
 struct AllCategoriesContentView: View {
-    @EnvironmentObject var appState: AppState
+    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         NavigationView {
@@ -137,15 +137,15 @@ struct AllCategoriesContentView: View {
                         .font(.title2)
                         .fontWeight(.bold)
 
-//                    Spacer()
-//
-//                    Button(action: {
-//                        appState.homeCoordinator.dismissSheet()
-//                    }) {
-//                        Image(systemName: "xmark.circle.fill")
-//                            .font(.title2)
-//                            .foregroundColor(.gray)
-//                    }
+                    Spacer()
+
+                    Button(action: {
+                        dismiss()
+                    }) {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.title2)
+                            .foregroundColor(.gray)
+                    }
                 }
                 .padding()
 
@@ -153,37 +153,16 @@ struct AllCategoriesContentView: View {
 
                 // Content - Danh sách tất cả categories
                 ScrollView {
-                    LazyVGrid(columns: [
-                        GridItem(.flexible()),
-                        GridItem(.flexible()),
-                        GridItem(.flexible())
-                    ], spacing: 16) {
+                    LazyVGrid(
+                        columns: [
+                            GridItem(.flexible()),
+                            GridItem(.flexible()),
+                            GridItem(.flexible())
+                        ],
+                        spacing: 16
+                    ) {
                         ForEach(Category.allCases.filter { $0 != .all }, id: \.self) { category in
-                            Button {
-                                // Dismiss sheet và navigate đến category tương ứng
-                                appState.homeCoordinator.dismissSheet()
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                                    appState.homeCoordinator.navigateToCategory(category)
-                                }
-                            } label: {
-                                VStack(spacing: 8) {
-                                    Image(systemName: category.icon)
-                                        .resizable()
-                                        .scaledToFit()
-                                        .frame(height: 32)
-                                        .foregroundColor(category.color)
-
-                                    Text(category.title)
-                                        .font(.caption)
-                                        .foregroundColor(.primary)
-                                        .multilineTextAlignment(.center)
-                                }
-                                .frame(maxWidth: .infinity)
-                                .padding()
-                                .background(Color.gray.opacity(0.1))
-                                .cornerRadius(12)
-                            }
-                            .buttonStyle(PlainButtonStyle())
+                            CategoryButton(category: category, dismiss: dismiss)
                         }
                     }
                     .padding()
@@ -192,5 +171,63 @@ struct AllCategoriesContentView: View {
         }
         .presentationDetents([.medium, .large])
         .presentationDragIndicator(.visible)
+    }
+}
+
+// MARK: - Helper View to Break Down Complexity
+
+private struct CategoryButton: View {
+    let category: Category
+    let dismiss: DismissAction
+
+    var body: some View {
+        Button {
+            // Dismiss sheet first
+            dismiss()
+
+            // Then navigate to category
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                navigateToCategory(category)
+            }
+        } label: {
+            VStack(spacing: 8) {
+                Image(systemName: category.icon)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(height: 32)
+                    .foregroundColor(category.color)
+
+                Text(category.title)
+                    .font(.caption)
+                    .foregroundColor(.primary)
+                    .multilineTextAlignment(.center)
+            }
+            .frame(maxWidth: .infinity)
+            .padding()
+            .background(Color.gray.opacity(0.1))
+            .cornerRadius(12)
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
+
+    private func navigateToCategory(_ category: Category) {
+        switch category {
+        case .motorcycle:
+            AppNavigation.navigateToMotorcycleBooking()
+        case .car:
+            AppLogger.i("🚗 Navigate to car booking")
+        case .food:
+            AppNavigation.navigateToFoodList()
+        case .shipping:
+            AppLogger.i("📦 Navigate to shipping")
+        case .shopping:
+            AppLogger.i("🛒 Navigate to shopping")
+        case .voucher:
+            AppLogger.i("🎫 Navigate to voucher")
+        case .bookDriver:
+            AppLogger.i("📅 Navigate to book driver")
+        case .all:
+            AppLogger.i("📋 Navigate to all categories")
+        }
     }
 }
