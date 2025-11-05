@@ -3,11 +3,28 @@
 //  MSP_IOS
 //
 //  Created by Phùng Văn Dũng on 26/10/25.
+//  Updated on 05/11/25 - Removed mock data, use data from API
 //
 
 import SwiftUI
 
-struct RideDiscount {
+/// Model cho ride discount data
+///
+/// # Overview
+/// Struct này đại diện cho một chuyến xe có ưu đãi.
+/// Data sẽ được fetch từ API và map vào struct này.
+///
+/// # Usage
+/// ```swift
+/// // Map từ API response
+/// let rideDiscount = RideDiscount(
+///     image: apiResponse.imageUrl,
+///     title: apiResponse.locationName,
+///     discount: apiResponse.discountPercent
+/// )
+/// ```
+struct RideDiscount: Identifiable {
+    let id = UUID()
     let image: String
     let title: String
     let discount: String
@@ -17,19 +34,46 @@ struct RideDiscount {
         self.title = title
         self.discount = discount
     }
-
-    static let sampleData: [RideDiscount] = [
-        .init(image: "ThangLong", title: "Hoàng Thành Thăng Long", discount: "20%"),
-        .init(image: "QuocTuGiam", title: "Quốc Tử Giám", discount: "12%"),
-        .init(image: "Hue_DiTich", title: "Kinh Thành Huế", discount: "16%"),
-    ]
 }
 
+/// View hiển thị danh sách các chuyến xe có ưu đãi
+///
+/// # Overview
+/// View này hiển thị horizontal scrollable list của các ride discounts.
+/// Data được truyền vào từ parent view (fetch từ API).
+///
+/// # Usage
+/// ```swift
+/// // Trong parent view
+/// @State private var discounts: [RideDiscount] = []
+///
+/// RideWithDiscountView(discounts: discounts)
+///     .task {
+///         // Fetch data từ API
+///         discounts = await fetchDiscountsFromAPI()
+///     }
+/// ```
+///
+/// - Parameter discounts: Array của RideDiscount objects từ API
 struct RideWithDiscountView: View {
+    /// Data từ API
+    let discounts: [RideDiscount]
+
+    /// Initializer
+    /// - Parameter discounts: Array of discount rides (default: empty array)
+    init(discounts: [RideDiscount] = []) {
+        self.discounts = discounts
+    }
+
     var body: some View {
         VStack{
             headerView
-            discountScrollView
+
+            if discounts.isEmpty {
+                emptyStateView
+            } else {
+                discountScrollView
+            }
         }
     }
 
@@ -44,18 +88,31 @@ struct RideWithDiscountView: View {
                 foregroundColor: AppColors.textPrimary,
                 size: .iconSize42
             ) {
+                // TODO: Navigate to all discounts screen
             }
         }
         .padding(.horizontal, .padding20)
     }
 
+    /// Empty state khi chưa có data
+    private var emptyStateView: some View {
+        HStack {
+            Spacer()
+            Text("Chưa có ưu đãi nào")
+                .font(.subheadline)
+                .foregroundColor(AppColors.textSecondary)
+                .padding()
+            Spacer()
+        }
+    }
+
     private var discountScrollView: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 16) {
-                ForEach(0..<RideDiscount.sampleData.count, id: \.self) { index in
-                    discountCard(for: RideDiscount.sampleData[index])
+                ForEach(Array(discounts.enumerated()), id: \.element.id) { index, discount in
+                    discountCard(for: discount)
                         .padding(.leading, index == 0 ? .padding20 : 0)
-                        .padding(.trailing, index == RideDiscount.sampleData.count - 1 ? .padding20 : 0)
+                        .padding(.trailing, index == discounts.count - 1 ? .padding20 : 0)
                 }
             }
         }
@@ -109,5 +166,15 @@ struct RideWithDiscountView: View {
 }
 
 #Preview {
-    RideWithDiscountView()
+    // Preview với empty state
+    RideWithDiscountView(discounts: [])
+}
+
+#Preview("With Data") {
+    // Preview với sample data cho development
+    RideWithDiscountView(discounts: [
+        RideDiscount(image: "ThangLong", title: "Hoàng Thành Thăng Long", discount: "20%"),
+        RideDiscount(image: "QuocTuGiam", title: "Quốc Tử Giám", discount: "12%"),
+        RideDiscount(image: "Hue_DiTich", title: "Kinh Thành Huế", discount: "16%"),
+    ])
 }
