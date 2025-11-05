@@ -8,19 +8,16 @@
 import SwiftUI
 
 struct LoginView: View {
-    let coordinator: AuthCoordinator
-    @ObservedObject var appState: AppState
+    @EnvironmentObject var appState: AppState
     @State private var isPasswordVisible = false
 
     // ✅ Inject AuthService from AppState
     @StateObject private var authViewModel: AuthViewModel
 
-    init(coordinator: AuthCoordinator, appState: AppState) {
-        self.coordinator = coordinator
-        self.appState = appState
-
-        // ✅ Initialize ViewModel with AuthService from AppState
-        _authViewModel = StateObject(wrappedValue: AuthViewModel(authService: appState.auth))
+    init() {
+        // Initialize with a temporary AuthService
+        // Will be updated in onAppear with actual AppState.auth
+        _authViewModel = StateObject(wrappedValue: AuthViewModel(authService: AuthService()))
     }
 
     var body: some View {
@@ -116,7 +113,7 @@ struct LoginView: View {
                         }
 
                         Button(action: {
-                            coordinator.showForgotPassword()
+                            AppNavigation.navigateToForgotPassword()
                         }) {
                             Text(NSLocalizedString("login_forgot_password", comment: "Forgot password button"))
                                 .font(.subheadline)
@@ -138,8 +135,7 @@ struct LoginView: View {
                                     let success = await authViewModel.login()
 
                                     if success {
-                                        // ✅ KHÔNG CẦN gọi appState.login() nữa
-                                        // AuthService.isAuthenticated changed → AppState syncs automatically
+                                        // ✅ Navigation handled automatically by AppState observer
                                         AppLogger.s("Login successful, waiting for auto navigation...")
                                     }
                                 }
@@ -160,7 +156,7 @@ struct LoginView: View {
                             .fontWeight(.bold)
 
                             Button(action: {
-                                coordinator.showForgotPassword()
+                                AppNavigation.navigateToRegister()
                             }) {
                                 Text(NSLocalizedString("login_sign_up", comment: ""))
                                     .font(.subheadline)
@@ -222,6 +218,9 @@ struct LoginView: View {
             }
         }
         .onAppear {
+            // ✅ Update authViewModel with actual AppState.auth
+            authViewModel.updateAuthService(appState.auth)
+
             // ✅ Check auth on appear (will auto navigate if already logged in)
             authViewModel.checkAuthStatus()
         }
@@ -229,7 +228,6 @@ struct LoginView: View {
 }
 
 #Preview {
-    let appState = AppState()
-    let coordinator = AuthCoordinator(router: appState.router, appState: appState)
-    return LoginView(coordinator: coordinator, appState: appState)
+    LoginView()
+        .environmentObject(AppState())
 }

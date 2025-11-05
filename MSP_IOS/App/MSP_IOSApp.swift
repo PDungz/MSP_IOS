@@ -15,12 +15,18 @@ struct MSP_IOSApp: App {
 
     var body: some Scene {
         WindowGroup {
-            RootView()
-                .environmentObject(appState)
-                .preferredColorScheme(.light) // Force Light Mode - ignore system Dark Mode
-                .onAppear {
-                    setupApp()
+            // ✅ Use new centralized navigation system
+            Group {
+                if appState.isAuthenticated {
+                    RootNavigationView(initialRoute: .home)
+                } else {
+                    RootNavigationView(initialRoute: .login)
                 }
+            }
+            .preferredColorScheme(.light) // Force Light Mode - ignore system Dark Mode
+            .onAppear {
+                setupApp()
+            }
         }
     }
 

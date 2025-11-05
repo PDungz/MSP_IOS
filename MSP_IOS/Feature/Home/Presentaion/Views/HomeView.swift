@@ -9,8 +9,6 @@ import SwiftUI
 
 struct HomeView: View {
 
-   let coordinator: HomeCoordinator
-    @ObservedObject var appState: AppState
     @State private var searchText: String = ""
     @State private var scrollOffset: CGFloat = 0
     @State private var previousScrollOffset: CGFloat = 0
@@ -101,7 +99,7 @@ struct HomeView: View {
                     )
                     // Content area
                     VStack(spacing: .spacing0) {
-                        HomeCategoryView(coordinator: coordinator)
+                        HomeCategoryView()
                             .padding(.bottom, .padding12)
 
                         AddCardAndGrabRewardsView()
@@ -174,9 +172,5 @@ struct HomeView: View {
 }
 
 #Preview {
-    let router = Router()
-    let appState = AppState()
-    let coordinator = HomeCoordinator(router: router, appState: appState)
-
-    HomeView(coordinator: coordinator, appState: appState)
+    HomeView()
 }

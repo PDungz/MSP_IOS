@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct MotorcycleBookingView: View {
-    let coordinator: HomeCoordinator
     @State private var locationString: String = ""
     @State private var scrollOffset: CGFloat = 0
     @State private var previousScrollOffset: CGFloat = 0
@@ -44,7 +43,7 @@ struct MotorcycleBookingView: View {
                                     verticalPadding: .padding0
                                 )
                             ) {
-                                coordinator.backToHome()
+                                AppNavigation.pop()
                             } content: {
                                 HStack(spacing: .spacing12) {
                                     Image(systemName: "arrow.left")
@@ -70,7 +69,8 @@ struct MotorcycleBookingView: View {
                                     verticalPadding: .padding8
                                 )
                             ) {
-                                coordinator.backToHome()
+                                // TODO: Navigate to map view
+                                AppLogger.i("🗺️ Navigate to map")
                             }
                         }
 
@@ -227,7 +227,7 @@ struct MotorcycleBookingView: View {
                                verticalPadding: .padding0
                            )
                        ) {
-                           coordinator.backToHome()
+                           AppNavigation.pop()
                        } content: {
                            HStack(spacing: .spacing12) {
                                Image(systemName: "arrow.left")
@@ -364,6 +364,5 @@ struct LoadingDotsView: View {
 }
 
 #Preview {
-    let appState = AppState()
-    MotorcycleBookingView(coordinator: appState.homeCoordinator)
+    MotorcycleBookingView()
 }
