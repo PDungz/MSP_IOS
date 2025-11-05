@@ -228,14 +228,14 @@ class NetworkManager: NetworkManagerProtocol, TokenRefreshable {
                 duration: duration
             )
 
-            // Decode response
-            let decoder = JSONDecoder()
-            decoder.keyDecodingStrategy = .convertFromSnakeCase
-            let apiResponse = try decoder.decode(ApiResponse<T>.self, from: data)
-
-            // Check HTTP status code
+            // Check HTTP status code FIRST (before decoding)
             guard (200..<300).contains(httpResponse.statusCode) else {
-                let error = mapStatusCodeToError(httpResponse.statusCode, message: apiResponse.message)
+                // Try to decode error message from response body (if available)
+                let decoder = JSONDecoder()
+                decoder.keyDecodingStrategy = .convertFromSnakeCase
+                let errorMessage = try? decoder.decode(ApiResponse<T>.self, from: data).message
+
+                let error = mapStatusCodeToError(httpResponse.statusCode, message: errorMessage)
 
                 // Try to retry with interceptors
                 if !skipTokenRefresh {
@@ -259,6 +259,11 @@ class NetworkManager: NetworkManagerProtocol, TokenRefreshable {
 
                 throw error
             }
+
+            // Decode success response
+            let decoder = JSONDecoder()
+            decoder.keyDecodingStrategy = .convertFromSnakeCase
+            let apiResponse = try decoder.decode(ApiResponse<T>.self, from: data)
 
             // Check API success flag
             guard apiResponse.success else {
