@@ -49,12 +49,12 @@ struct HomeCategoryView: View {
     private func navigateToCategory(_ category: Category) {
         switch category {
         case .motorcycle:
-            AppNavigation.navigateToMotorcycleBooking()
+            AppNavigation.push(.motorcycleBooking)
         case .car:
             // TODO: Add car booking route
             AppLogger.i("🚗 Navigate to car booking")
         case .food:
-            AppNavigation.navigateToFoodList()
+            AppNavigation.push(.foodList)
         case .shipping:
             // TODO: Add shipping route
             AppLogger.i("📦 Navigate to shipping")

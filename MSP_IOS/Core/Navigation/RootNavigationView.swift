@@ -109,6 +109,8 @@ struct RootNavigationView: View {
         case .bookingHistory:
             Text("Booking History Screen")
                 .navigationTitle(route.title)
+        case .searchLocation:
+            SearchLocationView()
 
         // MARK: - Order/Food Routes
         case .foodList:

@@ -40,32 +40,117 @@ struct ListItemOrderData: Identifiable {
         self.km = km
         self.rating = rating
     }
+    
 }
 
-/// View hiển thị danh sách các store/restaurant có ưu đãi
-///
-/// # Overview
-/// View này hiển thị horizontal scrollable list của các stores với discount.
-/// Data được truyền vào từ parent view (fetch từ API).
-///
-/// # Usage
-/// ```swift
-/// // Trong parent view (HomeView)
-/// @State private var stores: [ListItemOrderData] = []
-///
-/// HomeListItemOrderView(
-///     headerTitle: "Ưu đãi gần bạn",
-///     items: stores
-/// )
-/// .task {
-///     // Fetch data từ API
-///     stores = await fetchStoresFromAPI()
-/// }
-/// ```
-///
-/// - Parameters:
-///   - headerTitle: Tiêu đề của section
-///   - items: Array của ListItemOrderData objects từ API
+extension ListItemOrderData {
+    static let mockData1: [ListItemOrderData] = [
+        ListItemOrderData(
+            image: "https://images.unsplash.com/photo-1585032226651-759b368d7246?w=400",
+            title: "Nhà hàng Phở 24",
+            km: "1.2 km",
+            rating: 4.5,
+            discount: "Giảm 20%"
+        ),
+        ListItemOrderData(
+            image: "https://images.unsplash.com/photo-1512058564366-18510be2db19?w=400",
+            title: "Cơm Tấm Sài Gòn",
+            km: "0.8 km",
+            rating: 4.8,
+            discount: "Giảm 30%"
+        ),
+        ListItemOrderData(
+            image: "https://images.unsplash.com/photo-1555126634-323283e090fa?w=400",
+            title: "Bún Bò Huế Đệ Nhất",
+            km: "2.5 km",
+            rating: 4.3,
+            discount: "Giảm 15%"
+        ),
+        ListItemOrderData(
+            image: "https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=400",
+            title: "Bánh Mì Thịt Nướng",
+            km: "0.5 km",
+            rating: 4.7,
+            discount: "Giảm 25%"
+        ),
+    ]
+}
+
+extension ListItemOrderData {
+    static let mockData2: [ListItemOrderData] = [
+        ListItemOrderData(
+            image: "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=400",
+            title: "Lẩu Thái Tomyum",
+            km: "3.2 km",
+            rating: 4.4,
+            discount: "Giảm 35%"
+        ),
+        ListItemOrderData(
+            image: "https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?w=400",
+            title: "Sushi Tokyo",
+            km: "2.1 km",
+            rating: 4.9,
+            discount: "Giảm 20%"
+        ),
+        ListItemOrderData(
+            image: "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400",
+            title: "Pizza Ý Napoli",
+            km: "1.5 km",
+            rating: 4.2,
+            discount: "Giảm 40%"
+        ),
+        ListItemOrderData(
+            image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400",
+            title: "Burger & Steak",
+            km: "2.0 km",
+            rating: 4.5,
+            discount: "Giảm 25%"
+        ),
+        ListItemOrderData(
+            image: "https://images.unsplash.com/photo-1551218808-94e220e084d2?w=400",
+            title: "Mì Ramen Nhật Bản",
+            km: "1.7 km",
+            rating: 4.7,
+            discount: "Giảm 18%"
+        ),
+        ListItemOrderData(
+            image: "https://images.unsplash.com/photo-1562059390-a761a084768e?w=400",
+            title: "Gà Rán Crispy",
+            km: "1.3 km",
+            rating: 4.4,
+            discount: "Giảm 22%"
+        ),
+        ListItemOrderData(
+            image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400",
+            title: "Salad & Healthy Food",
+            km: "0.9 km",
+            rating: 4.6,
+            discount: "Giảm 15%"
+        ),
+        ListItemOrderData(
+            image: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400",
+            title: "Breakfast & Brunch",
+            km: "1.1 km",
+            rating: 4.8,
+            discount: "Giảm 28%"
+        ),
+        ListItemOrderData(
+            image: "https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=400",
+            title: "BBQ Hàn Quốc",
+            km: "2.4 km",
+            rating: 4.7,
+            discount: "Giảm 32%"
+        ),
+        ListItemOrderData(
+            image: "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=400",
+            title: "Pancake & Dessert",
+            km: "1.6 km",
+            rating: 4.5,
+            discount: "Giảm 20%"
+        )
+    ]
+}
+
 struct HomeListItemOrderView: View {
     let headerTitle: String
     /// Data từ API
@@ -75,7 +160,7 @@ struct HomeListItemOrderView: View {
     /// - Parameters:
     ///   - headerTitle: Section title
     ///   - items: Array of order items (default: empty array)
-    init(headerTitle: String, items: [ListItemOrderData] = []) {
+    init(headerTitle: String, items: [ListItemOrderData] = ListItemOrderData.mockData1) {
         self.headerTitle = headerTitle
         self.items = items
     }
@@ -136,20 +221,16 @@ struct HomeListItemOrderView: View {
 
     private func discountCard(for item: ListItemOrderData) -> some View {
         VStack(spacing: 8) {
-            cardImage(item.image)
+            CacheImageView(
+                url: item.image,
+                width: 148, height: 148,
+                cornerRadius: Dimension.Raduis.r12
+            )
+
 
             cardInfo(title: item.title, km: item.km, rating: item.rating, discount: item.discount)
         }
         .frame(width: 148)
-    }
-
-    private func cardImage(_ imageName: String) -> some View {
-        Image(imageName)
-            .resizable()
-            .scaledToFill()
-            .frame(width: 148, height: 148)
-            .clipped()
-            .cornerRadius(8)
     }
 
     private func cardInfo(title: String, km: String, rating: Double, discount: String) -> some View {
@@ -211,35 +292,5 @@ struct HomeListItemOrderView: View {
 
 #Preview {
     // Preview với empty state
-    HomeListItemOrderView(headerTitle: "Ưu đãi gần bạn", items: [])
-}
-
-#Preview("With Data") {
-    // Preview với sample data cho development
-    HomeListItemOrderView(
-        headerTitle: "Ưu đãi gần bạn",
-        items: [
-            ListItemOrderData(
-                image: "ThangLong",
-                title: "Trà Sữa Winggo - Tra Sữa Kem Trứng",
-                km: "3.2km",
-                rating: 4.5,
-                discount: "14.000đ"
-            ),
-            ListItemOrderData(
-                image: "QuocTuGiam",
-                title: "Cơm Thố An Nguyễn - Vũ Tông Phan",
-                km: "8.3km",
-                rating: 4.2,
-                discount: "12.000đ"
-            ),
-            ListItemOrderData(
-                image: "Hue_DiTich",
-                title: "Hùng Food - Mì Trộn Indomie - Mì Quảng Ngai",
-                km: "5.1km",
-                rating: 4.3,
-                discount: "16.000đ"
-            ),
-        ]
-    )
+    HomeListItemOrderView(headerTitle: "Ưu đãi gần bạn", items: ListItemOrderData.mockData1)
 }

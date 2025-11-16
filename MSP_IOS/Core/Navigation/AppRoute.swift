@@ -46,6 +46,7 @@ enum AppRoute: Hashable {
     case motorcycleDetail(motorcycleId: String)
     case bookingConfirm
     case bookingHistory
+    case searchLocation
 
     // MARK: - Order/Food Routes
     case foodList
@@ -77,6 +78,7 @@ enum AppRoute: Hashable {
         case .motorcycleDetail(let id): return "motorcycleDetail/\(id)"
         case .bookingConfirm: return "bookingConfirm"
         case .bookingHistory: return "bookingHistory"
+        case .searchLocation: return "searchLocation"
         case .foodList: return "foodList"
         case .foodDetail(let id): return "foodDetail/\(id)"
         case .cart: return "cart"
@@ -104,6 +106,7 @@ enum AppRoute: Hashable {
         case .motorcycleDetail: return "Chi tiết xe"
         case .bookingConfirm: return "Xác nhận đặt xe"
         case .bookingHistory: return "Lịch sử đặt xe"
+        case .searchLocation: return "Tìm kiếm địa điểm"
         case .foodList: return "Danh sách món ăn"
         case .foodDetail: return "Chi tiết món ăn"
         case .cart: return "Giỏ hàng"

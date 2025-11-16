@@ -100,7 +100,8 @@ struct HomeView: View {
                     // Content area
                     VStack(spacing: .spacing0) {
                         HomeCategoryView()
-                            .padding(.bottom, .padding12)
+                            .padding(.top, .padding12)
+                            .padding(.bottom, .padding24)
 
                         AddCardAndGrabRewardsView()
                             .padding(.horizontal)
@@ -109,10 +110,16 @@ struct HomeView: View {
                         HomeBannerAdView()
                             .padding(.bottom, .padding24)
 
-                        HomeListItemOrderView(headerTitle: "Có thể bạn sẽ thích")
+                        HomeListItemOrderView(
+                            headerTitle: "Có thể bạn sẽ thích",
+                            items: ListItemOrderData.mockData1
+                        )
                             .padding(.bottom, .padding24)
 
-                        HomeListItemOrderView(headerTitle: "Được yêu thích")
+                        HomeListItemOrderView(
+                            headerTitle: "Được yêu thích",
+                            items: ListItemOrderData.mockData2
+                        )
                             .padding(.bottom, .padding12)
                     }
                     .background(AppColors.bgPrimary)

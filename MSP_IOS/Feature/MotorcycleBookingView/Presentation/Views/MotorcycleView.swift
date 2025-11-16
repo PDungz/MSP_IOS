@@ -182,7 +182,7 @@ struct MotorcycleBookingView: View {
                             verticalPadding: .padding12,
                             iconColor: AppColors.rating1Star,
                             onTap: {
-                                print("Bạn muốn đến đâu?")
+                                AppNavigation.push(.searchLocation)
                             }
                         )
                         .padding(.horizontal, .padding20)
@@ -193,13 +193,19 @@ struct MotorcycleBookingView: View {
                         HistoryLocation()
                             .padding(.bottom, .padding20)
 
-                        RideWithDiscountView()
+                        RideWithDiscountView(
+                            discounts: RideDiscount.mockData1
+                        )
                             .padding(.bottom, .padding20)
 
-                        RideWithDiscountView()
+                        RideWithDiscountView(
+                            discounts: RideDiscount.mockData2
+                        )
                             .padding(.bottom, .padding20)
 
-                        RideWithDiscountView()
+                        RideWithDiscountView(
+                            discounts: RideDiscount.mockData1
+                        )
                             .padding(.bottom, .padding20)
 
                         Spacer()

@@ -36,32 +36,89 @@ struct RideDiscount: Identifiable {
     }
 }
 
-/// View hiển thị danh sách các chuyến xe có ưu đãi
-///
-/// # Overview
-/// View này hiển thị horizontal scrollable list của các ride discounts.
-/// Data được truyền vào từ parent view (fetch từ API).
-///
-/// # Usage
-/// ```swift
-/// // Trong parent view
-/// @State private var discounts: [RideDiscount] = []
-///
-/// RideWithDiscountView(discounts: discounts)
-///     .task {
-///         // Fetch data từ API
-///         discounts = await fetchDiscountsFromAPI()
-///     }
-/// ```
-///
+extension RideDiscount {
+    static let mockData1: [RideDiscount] = [
+        RideDiscount(
+            image: "https://images.unsplash.com/photo-1555217851-6141535bd771?w=400",
+            title: "Sân bay Nội Bài",
+            discount: "25%"
+        ),
+        RideDiscount(
+            image: "https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=400",
+            title: "Hồ Gươm",
+            discount: "20%"
+        ),
+        RideDiscount(
+            image: "https://images.unsplash.com/photo-1528127269322-539801943592?w=400",
+            title: "Vincom Mega Mall",
+            discount: "15%"
+        ),
+        RideDiscount(
+            image: "https://images.unsplash.com/photo-1590069261209-f8e9b8642343?w=400",
+            title: "Chùa Một Cột",
+            discount: "18%"
+        ),
+        RideDiscount(
+            image: "https://images.unsplash.com/photo-1509023464722-18d996393ca8?w=400",
+            title: "Lăng Chủ tịch HCM",
+            discount: "22%"
+        ),
+    ]
+}
+
+extension RideDiscount {
+    static let mockData2: [RideDiscount] = [
+        RideDiscount(
+            image: "https://images.unsplash.com/photo-1509023464722-18d996393ca8?w=400",
+            title: "Lăng Chủ tịch HCM",
+            discount: "22%"
+        ),
+        RideDiscount(
+            image: "https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=400",
+            title: "Nhà hát Lớn Hà Nội",
+            discount: "12%"
+        ),
+        RideDiscount(
+            image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400",
+            title: "Bảo tàng Lịch sử",
+            discount: "16%"
+        ),
+        RideDiscount(
+            image: "https://images.unsplash.com/photo-1582407947304-fd86f028f716?w=400",
+            title: "Cầu Long Biên",
+            discount: "10%"
+        ),
+        RideDiscount(
+            image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400",
+            title: "Hồ Tây",
+            discount: "14%"
+        ),
+        RideDiscount(
+            image: "https://images.unsplash.com/photo-1553913861-c0fddf2619ee?w=400",
+            title: "Phố cổ Hà Nội",
+            discount: "20%"
+        ),
+        RideDiscount(
+            image: "https://images.unsplash.com/photo-1541417904950-b855846fe074?w=400",
+            title: "Vinpearl Aquarium",
+            discount: "30%"
+        ),
+        RideDiscount(
+            image: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400",
+            title: "Trung tâm AEON Mall",
+            discount: "18%"
+        )
+    ]
+}
+
 /// - Parameter discounts: Array của RideDiscount objects từ API
 struct RideWithDiscountView: View {
     /// Data từ API
     let discounts: [RideDiscount]
 
     /// Initializer
-    /// - Parameter discounts: Array of discount rides (default: empty array)
-    init(discounts: [RideDiscount] = []) {
+    /// - Parameter discounts: Array of discount rides (default: mock data)
+    init(discounts: [RideDiscount] = RideDiscount.mockData1) {
         self.discounts = discounts
     }
 
@@ -120,20 +177,16 @@ struct RideWithDiscountView: View {
 
     private func discountCard(for item: RideDiscount) -> some View {
         VStack(spacing: 8) {
-            cardImage(item.image)
+            CacheImageView(
+                url: item.image,
+                width: 120, height: 120,
+                cornerRadius: Dimension.Raduis.r12
+            )
+
 
             cardInfo(title: item.title, discount: item.discount)
         }
         .frame(width: 120)
-    }
-
-    private func cardImage(_ imageName: String) -> some View {
-        Image(imageName)
-            .resizable()
-            .scaledToFill()
-            .frame(width: 120, height: 120)
-            .clipped()
-            .cornerRadius(8)
     }
 
     private func cardInfo(title: String, discount: String) -> some View {
@@ -166,15 +219,11 @@ struct RideWithDiscountView: View {
 }
 
 #Preview {
-    // Preview với empty state
-    RideWithDiscountView(discounts: [])
+    // Preview với mock data
+    RideWithDiscountView()
 }
 
-#Preview("With Data") {
-    // Preview với sample data cho development
-    RideWithDiscountView(discounts: [
-        RideDiscount(image: "ThangLong", title: "Hoàng Thành Thăng Long", discount: "20%"),
-        RideDiscount(image: "QuocTuGiam", title: "Quốc Tử Giám", discount: "12%"),
-        RideDiscount(image: "Hue_DiTich", title: "Kinh Thành Huế", discount: "16%"),
-    ])
+#Preview("Empty State") {
+    // Preview với empty state
+    RideWithDiscountView(discounts: [])
 }

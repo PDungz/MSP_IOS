@@ -213,11 +213,11 @@ private struct CategoryButton: View {
     private func navigateToCategory(_ category: Category) {
         switch category {
         case .motorcycle:
-            AppNavigation.navigateToMotorcycleBooking()
+            AppNavigation.push(.motorcycleBooking)
         case .car:
             AppLogger.i("🚗 Navigate to car booking")
         case .food:
-            AppNavigation.navigateToFoodList()
+            AppNavigation.push(.foodList)
         case .shipping:
             AppLogger.i("📦 Navigate to shipping")
         case .shopping:

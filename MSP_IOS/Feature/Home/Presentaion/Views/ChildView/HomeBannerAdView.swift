@@ -21,9 +21,48 @@ struct ListBannerAdData {
     }
 
     static let listBannerAdData: [ListBannerAdData] = [
-        .init(title: "Mua Ngay", url: "https://picsum.photos/400/300", subtitle: "Giảm ngay 25K cho đơn từ 25K", desQC: "Quán Mới Deal Hời"),
-        .init(title: "Mua Ngay", url: "https://picsum.photos/200", subtitle: "Bao giá bao ship. - Ưu Đãi X3", desQC: "Grab Ngon bỏ rẻ"),
-        .init(title: "Order Ngay", url: "https://picsum.photos/300", subtitle: "Tăng mẫu dùng thử Nescafe khi đặt Grab Food", desQC: "Nescafe")
+        .init(
+            title: "Đặt Ngay",
+            url: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600",
+            subtitle: "Giảm 50K cho đơn từ 99K - Áp dụng tất cả món",
+            desQC: "Ưu Đãi Hôm Nay"
+        ),
+        .init(
+            title: "Order Ngay",
+            url: "https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=600",
+            subtitle: "Freeship 0Đ - Giao nhanh 15 phút",
+            desQC: "Đối Tác Mới"
+        ),
+        .init(
+            title: "Mua Ngay",
+            url: "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=600",
+            subtitle: "Combo Pizza 1+1 - Giảm đến 40%",
+            desQC: "Pizza Napoli"
+        ),
+        .init(
+            title: "Đặt Ngay",
+            url: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=600",
+            subtitle: "Ăn sáng chỉ từ 15K - Giao hàng nhanh",
+            desQC: "Breakfast Deal"
+        ),
+        .init(
+            title: "Order Ngay",
+            url: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600",
+            subtitle: "Burger + Khoai tây + Nước giảm 35K",
+            desQC: "Burger House"
+        ),
+        .init(
+            title: "Đặt Ngay",
+            url: "https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?w=600",
+            subtitle: "Set Sushi 10 miếng chỉ 99K",
+            desQC: "Sushi Tokyo"
+        ),
+        .init(
+            title: "Order Ngay",
+            url: "https://images.unsplash.com/photo-1562059390-a761a084768e?w=600",
+            subtitle: "Combo Gà Rán 6 miếng + 2 Pepsi",
+            desQC: "KFC Style"
+        )
     ]
 }
 
@@ -32,7 +71,7 @@ struct HomeBannerAdView: View {
     var body: some View {
         VStack{
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 16) {
+                HStack(alignment: .top, spacing: 16) {
                     ForEach(0..<ListBannerAdData.listBannerAdData.count, id: \.self) { index in
                         discountCard(
                             for: ListBannerAdData.listBannerAdData[index]

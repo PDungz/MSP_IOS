@@ -15,6 +15,7 @@ struct TypewriterText: View {
 
     @State private var displayedText = ""
     @State private var currentTextIndex = 0
+    @State private var charIndex = 0
     @State private var typewriterTimer: Timer?
 
     init(
@@ -62,32 +63,48 @@ struct TypewriterText: View {
     private func typeCurrentText() {
         guard currentTextIndex < texts.count else {
             // Hết mảng, quay lại đầu
-            currentTextIndex = 0
-            displayedText = ""
+            DispatchQueue.main.async {
+                self.currentTextIndex = 0
+                self.displayedText = ""
+                self.charIndex = 0
+            }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                typeCurrentText()
+                self.typeCurrentText()
             }
             return
         }
 
         let currentText = texts[currentTextIndex]
-        displayedText = ""  // Xóa ngay lập tức (không animation xóa từng ký tự)
-        var charIndex = 0
 
+        // Reset displayed text và charIndex
+        DispatchQueue.main.async {
+            self.displayedText = ""
+            self.charIndex = 0
+        }
+
+        // Sử dụng Timer trên main RunLoop
         typewriterTimer = Timer.scheduledTimer(withTimeInterval: speed, repeats: true) { timer in
-            if charIndex < currentText.count {
-                let index = currentText.index(currentText.startIndex, offsetBy: charIndex)
-                displayedText.append(currentText[index])
-                charIndex += 1
-            } else {
-                timer.invalidate()
+            // Đảm bảo tất cả state updates đều trên main thread
+            DispatchQueue.main.async {
+                if self.charIndex < currentText.count {
+                    let index = currentText.index(currentText.startIndex, offsetBy: self.charIndex)
+                    self.displayedText.append(currentText[index])
+                    self.charIndex += 1
+                } else {
+                    timer.invalidate()
 
-                // Viết xong, đợi rồi chuyển sang text tiếp theo (XÓA NGAY)
-                DispatchQueue.main.asyncAfter(deadline: .now() + pauseDuration) {
-                    currentTextIndex += 1
-                    typeCurrentText()  // Xóa và viết text mới
+                    // Viết xong, đợi rồi chuyển sang text tiếp theo
+                    DispatchQueue.main.asyncAfter(deadline: .now() + self.pauseDuration) {
+                        self.currentTextIndex += 1
+                        self.typeCurrentText()
+                    }
                 }
             }
+        }
+
+        // Đảm bảo Timer chạy trên main RunLoop
+        if let timer = typewriterTimer {
+            RunLoop.main.add(timer, forMode: .common)
         }
     }
 }

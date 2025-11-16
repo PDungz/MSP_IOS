@@ -19,7 +19,7 @@ struct SearchLocationView: View {
                         verticalPadding: .padding0
                     )
                 ) {
-                    // Handle booking type selection
+                    AppNavigation.pop()
                 } content: {
                     HStack {
                         Image(systemName: "arrow.left")
@@ -51,6 +51,7 @@ struct SearchLocationView: View {
                 VStack{
                     TextFieldView(
                         placeholder: "Vị trí hiện tại",
+                        cornerRadius: .radius12,
                         verticalPadding: .padding10
                     )
                     .padding(.bottom, .padding8)
@@ -58,6 +59,7 @@ struct SearchLocationView: View {
                         placeholder: "Điểm bạn muốn đến...",
                         rightIcon:.icon(.system("camera.fill")),
                         iconFont: .subheadline,
+                        cornerRadius: .radius12,
                         verticalPadding: .padding10
                     )
                 }
@@ -78,7 +80,8 @@ struct SearchLocationView: View {
             }
             .padding(.top, .padding20)
             .padding(.horizontal, .padding20)
-            .padding(.bottom, .padding12)
+            .padding(.bottom, .padding8)
+            .shadow(color: AppColors.shadowXS, radius: .radius8, x: 0, y: 12)
 
             ScrollView{
                 VStack {
@@ -116,6 +119,7 @@ struct SearchLocationView: View {
                 .frame(maxWidth: .infinity)
             }
         }
+        .navigationBarBackButtonHidden(true)
     }
 }
 

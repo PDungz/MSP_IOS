@@ -112,7 +112,7 @@ struct LoginView: View {
                             }
 
                             Button(action: {
-                                AppNavigation.navigateToForgotPassword()
+                                AppNavigation.push(.forgotPassword)
                             }) {
                                 Text(NSLocalizedString("login_forgot_password", comment: "Forgot password button"))
                                     .font(.subheadline)
@@ -155,7 +155,7 @@ struct LoginView: View {
                                 .fontWeight(.bold)
 
                                 Button(action: {
-                                    AppNavigation.navigateToRegister()
+                                    AppNavigation.push(.register)
                                 }) {
                                     Text(NSLocalizedString("login_sign_up", comment: ""))
                                         .font(.subheadline)
@@ -216,6 +216,7 @@ struct LoginView: View {
                 }
             }
             .ignoresSafeArea(edges: .bottom)
+            .navigationBarBackButtonHidden(true)
         }
         .onAppear {
             // ✅ Initialize authViewModel with AppState.auth
